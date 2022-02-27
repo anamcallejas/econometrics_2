@@ -207,6 +207,41 @@ graph save _graphs\mean_dis_org.gph, replace
 
 graph combine _graphs\mean_dis_soburial.gph _graphs\mean_dis_sowomen.gph _graphs\mean_dis_soreligious.gph _graphs\mean_dis_soyouth.gph _graphs\mean_dis_org.gph , rows (1)
 
+//*#############################################################################
+//* Part 2.
+//*#############################################################################
+
+//*=============================================================================
+//* 0. Regressions of tvchannels on social capital
+//*=============================================================================
+//*----- 
+
+clear all
+use group9_v2
+
+reg soburial tvchannels
+outreg2 using regressions.xls, replace
+reg sowomen tvchannels
+outreg2 using regressions.xls, append
+reg soreligious tvchannels
+outreg2 using regressions.xls, append
+reg soyouth tvchannels
+outreg2 using regressions.xls, append
+reg org tvchannels
+outreg2 using regressions.xls, append
+
+//*#############################################################################
+//* n. Close log.
+//*#############################################################################
+
+*log close
+*translate 3_log\log.smcl 3_log\log.pdf, replace
+
+//*#############################################################################
+
+
+
+
 
 
 
