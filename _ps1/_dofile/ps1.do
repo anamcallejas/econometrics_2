@@ -10,7 +10,8 @@
 clear all
 set more off
 *capture log close
-cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
+cd "C:\Users\amcal\Documentos\Clases\II semester\Econometrics 2\_problem_sets\_ps1"
+*cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
 *log using "PS1_Ana",text replace
 
 use _data/group9.dta
@@ -49,7 +50,7 @@ bysort t: summarize soburial sowomen soreligious soyouth org
 save group9_v2, replace
 
 //*-----------------------------------------------------------------------------
-* for soburial:
+//*----- for soburial:
 
 clear all
 use group9_v2
@@ -68,7 +69,7 @@ twoway  (bar mean_soburial t, ylabel(0[.05]0.6)) (rcap hi_soburial lo_soburial t
 graph save _graphs\mean_year_soburial.gph, replace
 
 //*-----------------------------------------------------------------------------
-* for sowomen:
+//*----- for sowomen:
 
 clear all
 use group9_v2
@@ -87,7 +88,7 @@ twoway  (bar mean_sowomen t, ylabel(0[.05]0.6)) (rcap hi_sowomen lo_sowomen t, x
 graph save _graphs\mean_year_sowomen.gph, replace
 
 //*-----------------------------------------------------------------------------
-* for soreligious:
+//*----- for soreligious:
 
 clear all
 use group9_v2
@@ -106,7 +107,7 @@ twoway  (bar mean_soreligious t, ylabel(0[.05]0.6)) (rcap hi_soreligious lo_sore
 graph save _graphs\mean_year_soreligious.gph, replace
 
 //*-----------------------------------------------------------------------------
-* for soyouth:
+//*----- for soyouth:
 
 clear all
 use group9_v2
@@ -125,7 +126,7 @@ twoway  (bar mean_soyouth t, ylabel(0[.05]0.6)) (rcap hi_soyouth lo_soyouth t, x
 graph save _graphs\mean_year_soyouth.gph, replace
 
 //*-----------------------------------------------------------------------------
-* for org:
+//*----- for org:
 
 clear all
 use group9_v2
@@ -143,14 +144,72 @@ graph bar mean_org, over(t)
 twoway  (bar mean_org t, ylabel(0[.05]0.6)) (rcap hi_org lo_org t, xlabel(0[1]1))
 graph save _graphs\mean_year_org.gph, replace
 
-//*=============================================================================
-//* 2. XXX
-//*=============================================================================
-
 //*-----------------------------------------------------------------------------
-* merge graphs:
+//*----- merge graphs:
 
 graph combine _graphs\mean_year_soburial.gph _graphs\mean_year_sowomen.gph _graphs\mean_year_soreligious.gph _graphs\mean_year_soyouth.gph _graphs\mean_year_org.gph, rows(1)
+
+//*TO DO: FIX LABELS
+
+//*=============================================================================
+//* 3. Graph 2
+//*=============================================================================
+
+clear all
+use group9_v2
+
+collapse (mean) mean_soburial=soburial, by(kecnum)
+summarize mean_soburial
+egen rank = rank(-mean_soburial)
+sort rank
+twoway  (bar mean_soburial rank)
+graph save _graphs\mean_dis_soburial.gph, replace
+
+clear all
+use group9_v2
+
+collapse (mean) mean_sowomen=sowomen, by(kecnum)
+summarize mean_sowomen
+egen rank = rank(-mean_sowomen)
+sort rank
+twoway  (bar mean_sowomen rank)
+graph save _graphs\mean_dis_sowomen.gph, replace
+
+clear all
+use group9_v2
+
+collapse (mean) mean_soreligious=soreligious, by(kecnum)
+summarize mean_soreligious
+egen rank = rank(-mean_soreligious)
+sort rank
+twoway  (bar mean_soreligious rank)
+graph save _graphs\mean_dis_soreligious.gph, replace
+
+clear all
+use group9_v2
+
+collapse (mean) mean_soyouth=soyouth, by(kecnum)
+summarize mean_soyouth
+egen rank = rank(-mean_soyouth)
+sort rank
+twoway  (bar mean_soyouth rank)
+graph save _graphs\mean_dis_soyouth.gph, replace
+
+clear all
+use group9_v2
+
+collapse (mean) mean_org=org, by(kecnum)
+summarize mean_org
+egen rank = rank(-mean_org)
+sort rank
+twoway  (bar mean_org rank)
+graph save _graphs\mean_dis_org.gph, replace
+
+graph combine _graphs\mean_dis_soburial.gph _graphs\mean_dis_sowomen.gph _graphs\mean_dis_soreligious.gph _graphs\mean_dis_soyouth.gph _graphs\mean_dis_org.gph , rows (1)
+
+
+
+
 
 //*#############################################################################
 //* XXX
