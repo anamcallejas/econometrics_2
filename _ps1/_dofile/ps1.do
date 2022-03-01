@@ -47,13 +47,13 @@ replace t = 1 if wave == 2003
 
 bysort t: summarize soburial sowomen soreligious soyouth org
 
-save group9_v2, replace
+save _data/group9_v2, replace
 
 //*-----------------------------------------------------------------------------
 //*----- for soburial:
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 *graph bar soburial sowomen soreligious soyouth org, over(wave)
 
@@ -72,7 +72,7 @@ graph save _graphs\mean_year_soburial.gph, replace
 //*----- for sowomen:
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 *graph bar soburial sowomen soreligious soyouth org, over(wave)
 
@@ -91,7 +91,7 @@ graph save _graphs\mean_year_sowomen.gph, replace
 //*----- for soreligious:
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 *graph bar soburial sowomen soreligious soyouth org, over(wave)
 
@@ -110,7 +110,7 @@ graph save _graphs\mean_year_soreligious.gph, replace
 //*----- for soyouth:
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 *graph bar soyouth sowomen soreligious soyouth org, over(wave)
 
@@ -129,7 +129,7 @@ graph save _graphs\mean_year_soyouth.gph, replace
 //*----- for org:
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 *graph bar org sowomen soreligious org org, over(wave)
 
@@ -156,7 +156,7 @@ graph combine _graphs\mean_year_soburial.gph _graphs\mean_year_sowomen.gph _grap
 //*=============================================================================
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 collapse (mean) mean_soburial=soburial, by(kecnum)
 summarize mean_soburial
@@ -166,7 +166,7 @@ twoway  (bar mean_soburial rank)
 graph save _graphs\mean_dis_soburial.gph, replace
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 collapse (mean) mean_sowomen=sowomen, by(kecnum)
 summarize mean_sowomen
@@ -176,7 +176,7 @@ twoway  (bar mean_sowomen rank)
 graph save _graphs\mean_dis_sowomen.gph, replace
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 collapse (mean) mean_soreligious=soreligious, by(kecnum)
 summarize mean_soreligious
@@ -186,7 +186,7 @@ twoway  (bar mean_soreligious rank)
 graph save _graphs\mean_dis_soreligious.gph, replace
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 collapse (mean) mean_soyouth=soyouth, by(kecnum)
 summarize mean_soyouth
@@ -196,7 +196,7 @@ twoway  (bar mean_soyouth rank)
 graph save _graphs\mean_dis_soyouth.gph, replace
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 collapse (mean) mean_org=org, by(kecnum)
 summarize mean_org
@@ -217,7 +217,7 @@ graph combine _graphs\mean_dis_soburial.gph _graphs\mean_dis_sowomen.gph _graphs
 //*----- 
 
 clear all
-use group9_v2
+use _data/group9_v2
 
 reg soburial tvchannels
 outreg2 using regressions.xls, replace
