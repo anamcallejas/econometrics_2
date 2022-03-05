@@ -10,7 +10,7 @@
 clear all
 set more off
 *capture log close
-cd "C:\Users\amcal\Documentos\Clases\II semester\Econometrics 2\_problem_sets\_ps1"
+cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
 *cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
 *log using "PS1_Ana",text replace
 
@@ -150,7 +150,6 @@ graph save _graphs\mean_year_org.gph, replace
 
 graph combine _graphs\mean_year_soburial.gph _graphs\mean_year_sowomen.gph _graphs\mean_year_soreligious.gph _graphs\mean_year_soyouth.gph _graphs\mean_year_org.gph, rows(1)
 
-//*TO DO: FIX LABELS
 
 //*=============================================================================
 //* 3. Graph 2: Between variability
@@ -168,7 +167,6 @@ generate n =_n
 twoway  (bar mean_soburial n)
 graph save _graphs\mean_dis_soburial.gph, replace
 
-
 //*----- for sowomen:
 
 clear all
@@ -180,7 +178,6 @@ gsort -mean_sowomen
 generate n =_n
 twoway  (bar mean_sowomen n)
 graph save _graphs\mean_dis_sowomen.gph, replace
-
 
 //*----- for soreligious:
 
@@ -194,6 +191,7 @@ generate n =_n
 twoway  (bar mean_soreligious n)
 graph save _graphs\mean_dis_soreligious.gph, replace
 
+
 //*----- for soyouth:
 
 clear all
@@ -205,7 +203,6 @@ gsort -mean_soyouth
 generate n =_n
 twoway  (bar mean_soyouth n)
 graph save _graphs\mean_dis_soyouth.gph, replace
-
 
 //*----- for org:
 
@@ -219,10 +216,10 @@ generate n =_n
 twoway  (bar mean_org n)
 graph save _graphs\mean_dis_org.gph, replace
 
-
 //*----- merge graphs:
 
 graph combine _graphs\mean_dis_soburial.gph _graphs\mean_dis_sowomen.gph _graphs\mean_dis_soreligious.gph _graphs\mean_dis_soyouth.gph _graphs\mean_dis_org.gph , rows (1)
+
 
 //*=============================================================================
 //* 4. Within variability
@@ -280,6 +277,31 @@ drop mean_org
 
 sum w_soburial w_sowomen w_soreligious w_soyouth w_org
 
+//*=============================================================================
+//* 5. TV channels: between and within variability
+//*=============================================================================
+
+clear all
+use _data/group9_v2
+
+//*----- between variability:
+collapse (mean) mean_tv=tvchannels, by(kecnum)
+summarize mean_tv
+gsort -mean_tv
+generate n =_n
+twoway  (bar mean_tv n)
+graph save _graphs\mean_bet_tv.gph, replace
+
+clear all
+use _data/group9_v2
+
+//*----- within variability:
+
+bysort kecnum: egen mean_sd_tv = mean(tvchannels)
+egen mean_tv = mean(mean_sd_tv)
+generate w_tv = (tvchannels - mean_sd_tv - mean_tv)
+
+sum w_tv
 
 
 //*#############################################################################
