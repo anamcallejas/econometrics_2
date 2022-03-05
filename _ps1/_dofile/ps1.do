@@ -10,8 +10,8 @@
 clear all
 set more off
 *capture log close
-cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
-*cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
+*cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
+cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
 *log using "PS1_Ana",text replace
 
 use _data/group9.dta
@@ -315,17 +315,13 @@ sum w_tv
 clear all
 use _data/group9_v2
 
-reg soburial tvchannels
-outreg2 using _output/regressions, tex(frag) replace
-reg sowomen tvchannels
-outreg2 using _output/regressions, tex(frag) append
-reg soreligious tvchannels
-outreg2 using _output/regressions, tex(frag) append
-reg soyouth tvchannels
-outreg2 using _output/regressions, tex(frag) append
-reg org tvchannels
-outreg2 using _output/regressions, tex(frag) append
+eststo: reg soburial tvchannels
+eststo: reg sowomen tvchannels
+eststo: reg soreligious tvchannels
+eststo: reg soyouth tvchannels
+eststo: reg org tvchannels
 
+esttab using _output/regressions_v2.tex, title(Regression of the number of TV channels on social organization participation\label{tab1})
 
 //*#############################################################################
 //* Part 3.
