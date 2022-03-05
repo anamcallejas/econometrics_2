@@ -311,7 +311,6 @@ sum w_tv
 //*=============================================================================
 //* 0. Regressions of tvchannels on social capital
 //*=============================================================================
-//*----- 
 
 clear all
 use _data/group9_v2
@@ -335,12 +334,11 @@ outreg2 using _output/regressions, tex(frag) append
 //*=============================================================================
 //* 1. Regression of org on tv channels, clustring on subdistrict level
 //*=============================================================================
-//*----- 
 
 clear all
 use _data/group9_v2
 
-// Focusing on org therefore I drop the so... variables and t since wave is available
+//* Focusing on org therefore I drop the so... variables and t since wave is available
 
 drop soyouth soreligious soburial sowomen t
 
@@ -363,15 +361,14 @@ xtreg org tvchannels age gender years_educ lnexpcap, fe
 estimates store m2
 
 * Tabulating both results in Table 2
-esttab m1 m2 using _graphs\Table2.txt, drop (*.kecnum)
+esttab m1 m2 using _graphs\Table2.txt, drop (*.kecnum) replace
 
 //*=============================================================================
 //* 2. Regression of org on tv channels, clustring on subdistrict level and kabidwave
 //*=============================================================================
-//*----- 
 
 clear all
-// Focusing on org therefore I drop the so... variables and t since wave is available
+//* Focusing on org therefore I drop the so... variables and t since wave is available
 use _data/group9_v2
 drop soyouth soreligious soburial sowomen
 
@@ -391,7 +388,7 @@ xtreg org tvchannels age gender years_educ lnexpcap i.kabidwave, fe
 estimates store m4
 
 * Tabulating both results in Table 3
-esttab m3 m4 using _graphs\Table3.txt, drop (*.kecnum *.kabidwave)
+esttab m3 m4 using _graphs\Table3.txt, drop (*.kecnum *.kabidwave) replace
 
 
 //*#############################################################################
