@@ -66,7 +66,8 @@ generate hi_soburial= mean_soburial + invttail(n-1,0.025)*(sd_soburial / sqrt(n)
 generate lo_soburial = mean_soburial - invttail(n-1,0.025)*(sd_soburial / sqrt(n))
 
 graph bar mean_soburial, over(t)
-twoway  (bar mean_soburial t, ylabel(0[.05]0.6)) (rcap hi_soburial lo_soburial t, xlabel(0[1]1))
+twoway  (bar mean_soburial t, ylabel(0[.05]0.6)) (rcap hi_soburial lo_soburial t, xlabel(0[1]1)legend(off)xtitle("Mean soburial"))
+
 graph save _graphs\mean_year_soburial.gph, replace
 
 //*-----------------------------------------------------------------------------
@@ -85,7 +86,7 @@ generate hi_sowomen= mean_sowomen + invttail(n-1,0.025)*(sd_sowomen / sqrt(n))
 generate lo_sowomen = mean_sowomen - invttail(n-1,0.025)*(sd_sowomen / sqrt(n))
 
 graph bar mean_sowomen, over(t)
-twoway  (bar mean_sowomen t, ylabel(0[.05]0.6)) (rcap hi_sowomen lo_sowomen t, xlabel(0[1]1))
+twoway  (bar mean_sowomen t, ylabel(0[.05]0.6)) (rcap hi_sowomen lo_sowomen t, xlabel(0[1]1)legend(off)xtitle("Mean sowomen"))
 graph save _graphs\mean_year_sowomen.gph, replace
 
 //*-----------------------------------------------------------------------------
@@ -104,7 +105,7 @@ generate hi_soreligious= mean_soreligious + invttail(n-1,0.025)*(sd_soreligious 
 generate lo_soreligious = mean_soreligious - invttail(n-1,0.025)*(sd_soreligious / sqrt(n))
 
 graph bar mean_soreligious, over(t)
-twoway  (bar mean_soreligious t, ylabel(0[.05]0.6)) (rcap hi_soreligious lo_soreligious t, xlabel(0[1]1))
+twoway  (bar mean_soreligious t, ylabel(0[.05]0.6)) (rcap hi_soreligious lo_soreligious t, xlabel(0[1]1)legend(off)xtitle("Mean soreligious"))
 graph save _graphs\mean_year_soreligious.gph, replace
 
 //*-----------------------------------------------------------------------------
@@ -123,7 +124,7 @@ generate hi_soyouth= mean_soyouth + invttail(n-1,0.025)*(sd_soyouth / sqrt(n))
 generate lo_soyouth = mean_soyouth - invttail(n-1,0.025)*(sd_soyouth / sqrt(n))
 
 graph bar mean_soyouth, over(t)
-twoway  (bar mean_soyouth t, ylabel(0[.05]0.6)) (rcap hi_soyouth lo_soyouth t, xlabel(0[1]1))
+twoway  (bar mean_soyouth t, ylabel(0[.05]0.6)) (rcap hi_soyouth lo_soyouth t, xlabel(0[1]1)legend(off)xtitle("Mean soyouth"))
 graph save _graphs\mean_year_soyouth.gph, replace
 
 //*-----------------------------------------------------------------------------
@@ -142,13 +143,18 @@ generate hi_org= mean_org + invttail(n-1,0.025)*(sd_org / sqrt(n))
 generate lo_org = mean_org - invttail(n-1,0.025)*(sd_org / sqrt(n))
 
 graph bar mean_org, over(t)
-twoway  (bar mean_org t, ylabel(0[.05]0.6)) (rcap hi_org lo_org t, xlabel(0[1]1))
+twoway  (bar mean_org t, ylabel(0[.05]0.6)) (rcap hi_org lo_org t, xlabel(0[1]1)legend(off)xtitle("Mean org"))
 graph save _graphs\mean_year_org.gph, replace
 
 //*-----------------------------------------------------------------------------
 //*----- merge graphs:
 
-graph combine _graphs\mean_year_soburial.gph _graphs\mean_year_sowomen.gph _graphs\mean_year_soreligious.gph _graphs\mean_year_soyouth.gph _graphs\mean_year_org.gph, rows(1)
+graph combine _graphs\mean_year_soburial.gph _graphs\mean_year_sowomen.gph _graphs\mean_year_soreligious.gph _graphs\mean_year_soyouth.gph _graphs\mean_year_org.gph, rows(1) , title("Average participation in 1991 and 2003")
+
+graph save _output\avgsp_merged.ghp , replace
+global infile="_output"
+graph export "_output/avgsp_merged.pdf", as(pdf) replace
+
 
 
 //*=============================================================================
@@ -343,7 +349,7 @@ use _data/group9_v2
 drop soyouth soreligious soburial sowomen t
 
 * Simple regression of org on tv channels with dummies controling for subdistrict differences. Approching to data as pooled cross-section not Panel data
-reg org tvchannels age gender years_educ lnexpcap i.kecnum
+reg org i.kecnum t tvchannels age gender years_educ lnexpcap 
 
 * Storing the results
 estimates store m1 //, tvchannels _age _gender _years_educ _lnexpcap
