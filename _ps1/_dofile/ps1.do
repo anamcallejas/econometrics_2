@@ -10,10 +10,11 @@
 clear all
 set more off
 *capture log close
-*cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
-cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
+cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
+*cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
 *log using "PS1_Ana",text replace
 
+ssc install estout, replace
 use _data/group9.dta
 
 //*#############################################################################
@@ -328,7 +329,7 @@ eststo: reg soreligious tvchannels
 eststo: reg soyouth tvchannels
 eststo: reg org tvchannels
 
-esttab using _output/regressions_v2.tex, title(Regression of the number of TV channels on social organization participation\label{tab1})
+esttab using _output/regressions_v2.tex, title(Regression of the number of TV channels on social organization participation\label{tab1}) replace
 
 //*#############################################################################
 //* Part 3.
@@ -340,7 +341,7 @@ esttab using _output/regressions_v2.tex, title(Regression of the number of TV ch
 
 clear all
 // Focusing on org therefore I drop the so... variables and t since wave is available
-use group9_v2
+use _data/group9_v2
 drop soyouth soreligious soburial sowomen t
 
 * Simple regression of org on tv channels with dummies controling for 
@@ -361,9 +362,7 @@ xtsum
 quietly xtreg org tvchannels age gender years_educ lnexpcap
 
 estimates store m2
-esttab m1 m2 using Table2.tex,\\\
- title (" Regression of Social Participation over number of TV channels using\\\
- OLS and Fixed Effect") mtitles("OLS" "Fixed Effect") drop (*.kecnum) replace
+esttab m1 m2 using _output/Table2.tex, title (" Regression of Social Participation over number of TV channels using OLS and Fixed Effect") mtitles("OLS" "Fixed Effect") drop (*.kecnum) replace
 
 //*=============================================================================
 //* 2. Regression of org on tv channels, clustring on subdistrict level and kabidwave
@@ -372,7 +371,7 @@ esttab m1 m2 using Table2.tex,\\\
 
 clear all
 // Focusing on org therefore I drop the so... variables and t since wave is available
-use group9_v2
+use _data/group9_v2
 drop soyouth soreligious soburial sowomen
 
 reg org tvchannels age gender years_educ lnexpcap i.kecnum i.kabidwave
@@ -386,10 +385,7 @@ xtreg org tvchannels age gender years_educ lnexpcap i.kabidwave
 
 estimates store m4
 
-esttab m3 m4 using Table3.tex,\\\
- title (" Regression of Social Participation over number of TV channels \\\
- using OLS and Fixed Effect adding interaction of subdistrict and wave")\\\
- mtitles("OLS" "Fixed Effect") drop (*.kecnum *.kabidwave) replace
+esttab m3 m4 using _output/Table3.tex, title (" Regression of Social Participation over number of TV channels using OLS and Fixed Effect adding interaction of subdistrict and wave") mtitles("OLS" "Fixed Effect") drop (*.kecnum *.kabidwave) replace
 
 
 //*#############################################################################
