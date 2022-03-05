@@ -152,9 +152,9 @@ graph save _graphs\mean_year_org.gph, replace
 
 graph combine _graphs\mean_year_soburial.gph _graphs\mean_year_sowomen.gph _graphs\mean_year_soreligious.gph _graphs\mean_year_soyouth.gph _graphs\mean_year_org.gph, rows(1) , title("Average participation in 1991 and 2003")
 
-graph save _output\avgsp_merged.ghp , replace
+graph save _graphs\Graph1.ghp , replace
 global infile="_output"
-graph export "_output/avgsp_merged.pdf", as(pdf) replace
+graph export "_output/Graph1.pdf", as(pdf) replace
 
 
 
@@ -171,7 +171,7 @@ collapse (mean) mean_soburial=soburial, by(kecnum)
 summarize mean_soburial
 gsort -mean_soburial
 generate n =_n
-twoway  (bar mean_soburial n)
+twoway  (bar mean_soburial n), xlabel(0[400]800)
 graph save _graphs\mean_dis_soburial.gph, replace
 
 //*----- for sowomen:
@@ -183,7 +183,7 @@ collapse (mean) mean_sowomen=sowomen, by(kecnum)
 summarize mean_sowomen
 gsort -mean_sowomen
 generate n =_n
-twoway  (bar mean_sowomen n)
+twoway  (bar mean_sowomen n), xlabel(0[400]800)
 graph save _graphs\mean_dis_sowomen.gph, replace
 
 //*----- for soreligious:
@@ -195,7 +195,7 @@ collapse (mean) mean_soreligious=soreligious, by(kecnum)
 summarize mean_soreligious
 gsort -mean_soreligious
 generate n =_n
-twoway  (bar mean_soreligious n)
+twoway  (bar mean_soreligious n), xlabel(0[400]800)
 graph save _graphs\mean_dis_soreligious.gph, replace
 
 
@@ -208,7 +208,7 @@ collapse (mean) mean_soyouth=soyouth, by(kecnum)
 summarize mean_soyouth
 gsort -mean_soyouth
 generate n =_n
-twoway  (bar mean_soyouth n)
+twoway  (bar mean_soyouth n), xlabel(0[400]800)
 graph save _graphs\mean_dis_soyouth.gph, replace
 
 //*----- for org:
@@ -220,12 +220,17 @@ collapse (mean) mean_org=org, by(kecnum)
 summarize mean_org
 gsort -mean_org
 generate n =_n
-twoway  (bar mean_org n)
+twoway  (bar mean_org n), xlabel(0[400]800)
 graph save _graphs\mean_dis_org.gph, replace
 
 //*----- merge graphs:
 
-graph combine _graphs\mean_dis_soburial.gph _graphs\mean_dis_sowomen.gph _graphs\mean_dis_soreligious.gph _graphs\mean_dis_soyouth.gph _graphs\mean_dis_org.gph , rows (1)
+graph combine _graphs\mean_dis_soburial.gph _graphs\mean_dis_sowomen.gph _graphs\mean_dis_soreligious.gph _graphs\mean_dis_soyouth.gph _graphs\mean_dis_org.gph , rows(1) , title("Means of organization by sub-district in descending order")
+
+
+graph save _graphs\Graph2.ghp , replace
+global infile="_output"
+graph export "_output/Graph2.pdf", as(pdf) replace
 
 
 //*=============================================================================
@@ -297,8 +302,11 @@ collapse (mean) mean_tv=tvchannels, by(kecnum)
 summarize mean_tv
 gsort -mean_tv
 generate n =_n
-twoway  (bar mean_tv n)
-graph save _graphs\mean_bet_tv.gph, replace
+twoway  (bar mean_tv n) , title("Means of TV channels by sub-district in descending order")
+
+graph save _graphs\Graph3.ghp , replace
+global infile="_output"
+graph export "_output/Graph3.pdf", as(pdf) replace
 
 clear all
 use _data/group9_v2
