@@ -10,7 +10,7 @@
 clear all
 set more off
 *capture log close
-cd "C:\Users\amcal\Documentos\Clases\II semester\Econometrics 2\_problem_sets\_ps1"
+cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
 *cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
 *log using "PS1_Ana",text replace
 
@@ -21,7 +21,7 @@ use _data/group9.dta
 //*#############################################################################
 
 //*=============================================================================
-//* 1. generate org
+//* 1. Generate org variable
 //*=============================================================================
 
 tab soburial, m
@@ -32,10 +32,11 @@ tab soyouth, m
 gen org = .
 replace org = 0 if (soburial == 0 & sowomen == 0 & soreligious == 0 & soyouth == 0)
 replace org = 1 if (soburial == 1 | sowomen == 1 | soreligious == 1 | soyouth == 1)
+label variable org "Participation to at least one organization"
 tab org
 
 //*=============================================================================
-//* 2. graph 1
+//* 2. Graph 1
 //*=============================================================================
 * https://stats.oarc.ucla.edu/stata/faq/how-can-i-make-a-bar-graph-with-error-bars/
 * https://www.stata-journal.com/sjpdf.html?articlenum=gr0019
@@ -149,63 +150,159 @@ graph save _graphs\mean_year_org.gph, replace
 
 graph combine _graphs\mean_year_soburial.gph _graphs\mean_year_sowomen.gph _graphs\mean_year_soreligious.gph _graphs\mean_year_soyouth.gph _graphs\mean_year_org.gph, rows(1)
 
-//*TO DO: FIX LABELS
 
 //*=============================================================================
-//* 3. Graph 2
+//* 3. Graph 2: Between variability
 //*=============================================================================
+
+//*----- for soburial:
 
 clear all
 use _data/group9_v2
 
 collapse (mean) mean_soburial=soburial, by(kecnum)
 summarize mean_soburial
-egen rank = rank(-mean_soburial)
-sort rank
-twoway  (bar mean_soburial rank)
+gsort -mean_soburial
+generate n =_n
+twoway  (bar mean_soburial n)
 graph save _graphs\mean_dis_soburial.gph, replace
+
+//*----- for sowomen:
 
 clear all
 use _data/group9_v2
 
 collapse (mean) mean_sowomen=sowomen, by(kecnum)
 summarize mean_sowomen
-egen rank = rank(-mean_sowomen)
-sort rank
-twoway  (bar mean_sowomen rank)
+gsort -mean_sowomen
+generate n =_n
+twoway  (bar mean_sowomen n)
 graph save _graphs\mean_dis_sowomen.gph, replace
+
+//*----- for soreligious:
 
 clear all
 use _data/group9_v2
 
 collapse (mean) mean_soreligious=soreligious, by(kecnum)
 summarize mean_soreligious
-egen rank = rank(-mean_soreligious)
-sort rank
-twoway  (bar mean_soreligious rank)
+gsort -mean_soreligious
+generate n =_n
+twoway  (bar mean_soreligious n)
 graph save _graphs\mean_dis_soreligious.gph, replace
+
+
+//*----- for soyouth:
 
 clear all
 use _data/group9_v2
 
 collapse (mean) mean_soyouth=soyouth, by(kecnum)
 summarize mean_soyouth
-egen rank = rank(-mean_soyouth)
-sort rank
-twoway  (bar mean_soyouth rank)
+gsort -mean_soyouth
+generate n =_n
+twoway  (bar mean_soyouth n)
 graph save _graphs\mean_dis_soyouth.gph, replace
+
+//*----- for org:
 
 clear all
 use _data/group9_v2
 
 collapse (mean) mean_org=org, by(kecnum)
 summarize mean_org
-egen rank = rank(-mean_org)
-sort rank
-twoway  (bar mean_org rank)
+gsort -mean_org
+generate n =_n
+twoway  (bar mean_org n)
 graph save _graphs\mean_dis_org.gph, replace
 
+//*----- merge graphs:
+
 graph combine _graphs\mean_dis_soburial.gph _graphs\mean_dis_sowomen.gph _graphs\mean_dis_soreligious.gph _graphs\mean_dis_soyouth.gph _graphs\mean_dis_org.gph , rows (1)
+
+
+//*=============================================================================
+//* 4. Within variability
+//*=============================================================================
+
+clear all
+use _data/group9_v2
+
+//*----- for soburial:
+
+bysort kecnum: egen mean_sd_soburial = mean(soburial)
+egen mean_soburial = mean(mean_sd_soburial)
+generate w_soburial = (soburial - mean_sd_soburial - mean_soburial)
+
+drop mean_soburial
+drop mean_sd_soburial
+
+//*----- for sowomen:
+
+bysort kecnum: egen mean_sd_sowomen = mean(sowomen)
+egen mean_sowomen = mean(mean_sd_sowomen)
+generate w_sowomen = (sowomen - mean_sd_sowomen - mean_sowomen)
+
+drop mean_sowomen
+drop mean_sd_sowomen
+
+//*----- for soreligious:
+
+bysort kecnum: egen mean_sd_soreligious = mean(soreligious)
+egen mean_soreligious = mean(mean_sd_soreligious)
+generate w_soreligious = (soreligious - mean_sd_soreligious - mean_soreligious)
+
+drop mean_soreligious
+drop mean_sd_soreligious
+
+//*----- for soyouth:
+
+bysort kecnum: egen mean_sd_soyouth = mean(soyouth)
+egen mean_soyouth = mean(mean_sd_soyouth)
+generate w_soyouth = (soyouth - mean_sd_soyouth - mean_soyouth)
+
+drop mean_soyouth
+drop mean_sd_soyouth
+
+//*----- for org:
+
+bysort kecnum: egen mean_sd_org = mean(org)
+egen mean_org = mean(mean_sd_org)
+generate w_org = (org - mean_sd_org - mean_org)
+
+drop mean_org
+drop mean_org
+
+//*----- report:
+
+sum w_soburial w_sowomen w_soreligious w_soyouth w_org
+
+//*=============================================================================
+//* 5. TV channels: between and within variability
+//*=============================================================================
+
+clear all
+use _data/group9_v2
+
+//*----- between variability:
+collapse (mean) mean_tv=tvchannels, by(kecnum)
+summarize mean_tv
+gsort -mean_tv
+generate n =_n
+twoway  (bar mean_tv n)
+graph save _graphs\mean_bet_tv.gph, replace
+
+clear all
+use _data/group9_v2
+
+//*----- within variability:
+
+bysort kecnum: egen mean_sd_tv = mean(tvchannels)
+egen mean_tv = mean(mean_sd_tv)
+generate w_tv = (tvchannels - mean_sd_tv - mean_tv)
+
+sum w_tv
+
 
 //*#############################################################################
 //* Part 2.
