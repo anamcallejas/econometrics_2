@@ -336,59 +336,57 @@ outreg2 using _output/regressions, tex(frag) append
 //*=============================================================================
 
 clear all
-use _data/group9_v2
-
-//* Focusing on org therefore I drop the so... variables and t since wave is available
-
+// Focusing on org therefore I drop the so... variables and t since wave is available
+use group9_v2
 drop soyouth soreligious soburial sowomen t
 
-* Simple regression of org on tv channels with dummies controling for subdistrict differences. Approching to data as pooled cross-section not Panel data
-reg org tvchannels age gender years_educ lnexpcap i.kecnum
+* Simple regression of org on tv channels with dummies controling for 
+//subdistrict differences. Approching to data as pooled cross-section not Panel data
+quietly reg org tvchannels age gender years_educ lnexpcap i.kecnum
 
-* Storing the results
 estimates store m1 //, tvchannels _age _gender _years_educ _lnexpcap
 
-* Same thing but treating data as panel. Since individual people are not distinct in two time frames we have to treat subdistricts as individual, therefore collapsing the data for sub districs.
+* Same thing but treating data as panel. Since individual people are not 
+// distinct in two time frames we have to treat subdistricts as individual
+// there for collapsing the data for sub districs.
 collapse tvchannels kabidwave age gender years_educ lnexpcap org , by (kecnum wave)
 
 * Introducing kecnum as panel variable and wave as time variable
 xtset kecnum wave
 
-* Using Fixed Effect method to regress org on tvchannels and ...
-xtreg org tvchannels age gender years_educ lnexpcap, fe
+xtsum
+quietly xtreg org tvchannels age gender years_educ lnexpcap
 
-* Storing new results
 estimates store m2
-
-* Tabulating both results in Table 2
-esttab m1 m2 using _graphs\Table2.txt, drop (*.kecnum) replace
+esttab m1 m2 using Table2.tex,\\\
+ title (" Regression of Social Participation over number of TV channels using\\\
+ OLS and Fixed Effect") mtitles("OLS" "Fixed Effect") drop (*.kecnum) replace
 
 //*=============================================================================
 //* 2. Regression of org on tv channels, clustring on subdistrict level and kabidwave
 //*=============================================================================
+//*----- 
 
 clear all
-//* Focusing on org therefore I drop the so... variables and t since wave is available
-use _data/group9_v2
+// Focusing on org therefore I drop the so... variables and t since wave is available
+use group9_v2
 drop soyouth soreligious soburial sowomen
 
-* Simple regression of org on tv channels adding intersection of district and time to last model. Approching to data as pooled cross-section not Panel data
 reg org tvchannels age gender years_educ lnexpcap i.kecnum i.kabidwave
 
-* Storing the results
 estimates store m3
 
 collapse tvchannels kabidwave age gender years_educ lnexpcap org , by (kecnum wave)
 xtset kecnum wave
 
-* Using Fixed Effect method to regress org on tvchannels and ...
-xtreg org tvchannels age gender years_educ lnexpcap i.kabidwave, fe
+xtreg org tvchannels age gender years_educ lnexpcap i.kabidwave
 
-* Storing new results
 estimates store m4
 
-* Tabulating both results in Table 3
-esttab m3 m4 using _graphs\Table3.txt, drop (*.kecnum *.kabidwave) replace
+esttab m3 m4 using Table3.tex,\\\
+ title (" Regression of Social Participation over number of TV channels \\\
+ using OLS and Fixed Effect adding interaction of subdistrict and wave")\\\
+ mtitles("OLS" "Fixed Effect") drop (*.kecnum *.kabidwave) replace
 
 
 //*#############################################################################
