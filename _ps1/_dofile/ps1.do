@@ -275,7 +275,8 @@ drop mean_sd_org
 
 //*----- report:
 
-sum w_soburial w_sowomen w_soreligious w_soyouth w_org
+estpost sum w_soburial w_sowomen w_soreligious w_soyouth w_org
+esttab using _output/summary_1.tex, cells("count mean sd min max") title(For Fucks Sake\label{tab1}) replace
 
 //*=============================================================================
 //* 5. TV channels: between and within variability
