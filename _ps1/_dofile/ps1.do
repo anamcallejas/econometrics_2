@@ -271,7 +271,7 @@ egen mean_org = mean(mean_sd_org)
 generate w_org = (org - mean_sd_org - mean_org)
 
 drop mean_org
-drop mean_org
+drop mean_sd_org
 
 //*----- report:
 
@@ -317,15 +317,15 @@ clear all
 use _data/group9_v2
 
 reg soburial tvchannels
-outreg2 using regressions.xls, replace
+outreg2 using _output/regressions, tex(frag) replace
 reg sowomen tvchannels
-outreg2 using regressions.xls, append
+outreg2 using _output/regressions, tex(frag) append
 reg soreligious tvchannels
-outreg2 using regressions.xls, append
+outreg2 using _output/regressions, tex(frag) append
 reg soyouth tvchannels
-outreg2 using regressions.xls, append
+outreg2 using _output/regressions, tex(frag) append
 reg org tvchannels
-outreg2 using regressions.xls, append
+outreg2 using _output/regressions, tex(frag) append
 
 
 //*#############################################################################
@@ -338,8 +338,10 @@ outreg2 using regressions.xls, append
 //*----- 
 
 clear all
+use _data/group9_v2
+
 // Focusing on org therefore I drop the so... variables and t since wave is available
-use group9_v2
+
 drop soyouth soreligious soburial sowomen t
 
 * Simple regression of org on tv channels with dummies controling for subdistrict differences. Approching to data as pooled cross-section not Panel data
@@ -370,7 +372,7 @@ esttab m1 m2 using Table2.txt, drop (*.kecnum)
 
 clear all
 // Focusing on org therefore I drop the so... variables and t since wave is available
-use group9_v2
+use _data/group9_v2
 drop soyouth soreligious soburial sowomen
 
 * Simple regression of org on tv channels adding intersection of district and time to last model. Approching to data as pooled cross-section not Panel data
@@ -389,16 +391,8 @@ xtreg org tvchannels age gender years_educ lnexpcap i.kabidwave, fe
 estimates store m4
 
 * Tabulating both results in Table 2
-esttab m3 m4 using Table3.txt, drop (*.kecnum *.kabidwave)
+esttab m3 m4 using Table3.txt, drop (*.kecnum *.kabidwave) , replace
 
-//*#############################################################################
-//* XXX
-//*#############################################################################
-
-//*=============================================================================
-//* XXX
-//*=============================================================================
-//*----- XXX
 
 //*#############################################################################
 //* n. Close log.
