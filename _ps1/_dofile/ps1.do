@@ -350,7 +350,7 @@ reg org tvchannels age gender years_educ lnexpcap i.kecnum
 * Storing the results
 estimates store m1 //, tvchannels _age _gender _years_educ _lnexpcap
 
-* Same thing but treating data as panel. Since individual people are not distinct in two time frames we have to treat subdistricts as individual there for collapsing the data for sub districs.
+* Same thing but treating data as panel. Since individual people are not distinct in two time frames we have to treat subdistricts as individual, therefore collapsing the data for sub districs.
 collapse tvchannels kabidwave age gender years_educ lnexpcap org , by (kecnum wave)
 
 * Introducing kecnum as panel variable and wave as time variable
@@ -363,7 +363,7 @@ xtreg org tvchannels age gender years_educ lnexpcap, fe
 estimates store m2
 
 * Tabulating both results in Table 2
-esttab m1 m2 using Table2.txt, drop (*.kecnum)
+esttab m1 m2 using _graphs\Table2.txt, drop (*.kecnum)
 
 //*=============================================================================
 //* 2. Regression of org on tv channels, clustring on subdistrict level and kabidwave
@@ -390,8 +390,8 @@ xtreg org tvchannels age gender years_educ lnexpcap i.kabidwave, fe
 * Storing new results
 estimates store m4
 
-* Tabulating both results in Table 2
-esttab m3 m4 using Table3.txt, drop (*.kecnum *.kabidwave) , replace
+* Tabulating both results in Table 3
+esttab m3 m4 using _graphs\Table3.txt, drop (*.kecnum *.kabidwave)
 
 
 //*#############################################################################
