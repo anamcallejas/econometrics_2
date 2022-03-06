@@ -382,7 +382,7 @@ clear all
 use _data/group9_v2
 drop soyouth soreligious soburial sowomen
 
-reg org tvchannels age gender years_educ lnexpcap i.kecnum i.kabidwave
+reg org tvchannels age gender years_educ lnexpcap i.kecnum i.kabidwave i.wave, cluster (kecnum)
 
 estimates store m3
 
