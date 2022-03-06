@@ -10,8 +10,8 @@
 clear all
 set more off
 *capture log close
-*cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
-cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
+cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
+*cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
 *log using "PS1_Ana",text replace
 
 ssc install estout, replace
