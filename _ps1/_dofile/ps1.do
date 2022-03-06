@@ -354,7 +354,7 @@ drop soyouth soreligious soburial sowomen t
 
 * Simple regression of org on tv channels with dummies controling for 
 //subdistrict differences. Approching to data as pooled cross-section not Panel data
-quietly reg org tvchannels age gender years_educ lnexpcap i.kecnum
+reg org tvchannels age gender years_educ lnexpcap i.kecnum i.wave, cluster(kecnum)
 
 estimates store m1 //, tvchannels _age _gender _years_educ _lnexpcap
 
