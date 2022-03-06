@@ -1,5 +1,5 @@
 //* Authors: Callejas A.; Gohlami A.; Montealegre F.
-//* Date:
+//* Date: 06/03/2021
 //* The latest version of this file along the entire folder structure is in
 //* GitHub: https://github.com/anamcallejas/econometrics_2
 
@@ -11,6 +11,7 @@ clear all
 set more off
 
 cd "C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps1"
+log using _log/log, replace
 
 ssc install estout, replace
 use _data/group9.dta
@@ -410,4 +411,10 @@ esttab m3 m4 using _output/Table3.tex, title (" Regression of Social Participati
 
 
 //*#############################################################################
+//* n. Close log.
+//*#############################################################################
 
+log close
+translate _log\log.smcl _log\log.pdf, replace
+
+//*#############################################################################
