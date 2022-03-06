@@ -10,8 +10,8 @@
 clear all
 set more off
 *capture log close
-cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
-*cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
+*cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
+cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
 *log using "PS1_Ana",text replace
 
 ssc install estout, replace
@@ -159,16 +159,17 @@ graph export "_output/Graph1.pdf", as(pdf) replace
 
 
 //*=============================================================================
-//* 3. Graph 2: Between variability
+//* 3. Graph 2: Between variability AND Table "Between variability"
 //*=============================================================================
-
 //*----- for soburial:
 
 clear all
 use _data/group9_v2
 
 collapse (mean) mean_soburial=soburial, by(kecnum)
-summarize mean_soburial
+estpost summarize mean_soburial, listwise 
+esttab using _output/between_variability.tex, cells ("count mean sd min max") unstack noobs nonumbers title ("Between variability of organizations by sub-districts"\label{tab1}) replace
+
 gsort -mean_soburial
 generate n =_n
 twoway  (bar mean_soburial n), xlabel(0[400]800)
@@ -180,7 +181,9 @@ clear all
 use _data/group9_v2
 
 collapse (mean) mean_sowomen=sowomen, by(kecnum)
-summarize mean_sowomen
+estpost summarize mean_sowomen
+esttab using _output/between_variability.tex, cells ("count mean sd min max") unstack noobs nonumbers append
+
 gsort -mean_sowomen
 generate n =_n
 twoway  (bar mean_sowomen n), xlabel(0[400]800)
@@ -192,7 +195,9 @@ clear all
 use _data/group9_v2
 
 collapse (mean) mean_soreligious=soreligious, by(kecnum)
-summarize mean_soreligious
+estpost summarize mean_soreligious
+esttab using _output/between_variability.tex, cells ("count mean sd min max") unstack noobs nonumbers append
+
 gsort -mean_soreligious
 generate n =_n
 twoway  (bar mean_soreligious n), xlabel(0[400]800)
@@ -205,7 +210,9 @@ clear all
 use _data/group9_v2
 
 collapse (mean) mean_soyouth=soyouth, by(kecnum)
-summarize mean_soyouth
+estpost summarize mean_soyouth
+esttab using _output/between_variability.tex, cells ("count mean sd min max") unstack noobs nonumbers append
+
 gsort -mean_soyouth
 generate n =_n
 twoway  (bar mean_soyouth n), xlabel(0[400]800)
@@ -217,7 +224,9 @@ clear all
 use _data/group9_v2
 
 collapse (mean) mean_org=org, by(kecnum)
-summarize mean_org
+estpost summarize mean_org
+esttab using _output/between_variability.tex, cells ("count mean sd min max") unstack noobs nonumbers append 
+
 gsort -mean_org
 generate n =_n
 twoway  (bar mean_org n), xlabel(0[400]800)
