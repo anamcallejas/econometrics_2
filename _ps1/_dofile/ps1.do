@@ -393,7 +393,7 @@ xtreg org tvchannels age gender years_educ lnexpcap i.kabidwave
 
 estimates store m4
 
-esttab m3 m4 using _output/Table3.tex, title (" Regression of Social Participation over number of TV channels using OLS and Fixed Effect adding interaction of subdistrict and wave") mtitles("OLS" "Fixed Effect") drop (*.kecnum *.kabidwave) replace
+esttab m3 m4 using _output/Table3.tex, title (" Regression of Social Participation over number of TV channels using OLS and Fixed Effect adding interaction of district and wave") mtitles("OLS" "Fixed Effect") drop (*.kecnum *.kabidwave) replace
 
 
 //*#############################################################################
