@@ -10,7 +10,7 @@
 clear all
 set more off
 *capture log close
-cd "C:\Users\amcal\Documentos\Clases\Econometrics 2\_problem_sets\_ps1"
+cd "C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps1"
 *cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
 *log using "PS1_Ana",text replace
 
@@ -288,7 +288,7 @@ drop mean_sd_org
 //*----- report:
 
 estpost sum w_soburial w_sowomen w_soreligious w_soyouth w_org
-esttab using _output/summary_1.tex, cells("count mean sd min max") title(For Fucks Sake\label{tab1}) replace
+esttab using _output/summary_1.tex, cells("count mean sd min max") title(Within variability\label{tab1}) replace
 
 //*=============================================================================
 //* 5. TV channels: between and within variability
@@ -300,6 +300,10 @@ use _data/group9_v2
 //*----- between variability:
 collapse (mean) mean_tv=tvchannels, by(kecnum)
 summarize mean_tv
+
+estpost sum mean_tv
+esttab using _output/summary_btv.tex, cells("count mean sd min max") title(Between variability of TV channels\label{tab1}) replace
+
 gsort -mean_tv
 generate n =_n
 twoway  (bar mean_tv n) , title("Means of TV channels by sub-district in descending order")
@@ -319,6 +323,8 @@ generate w_tv = (tvchannels - mean_sd_tv - mean_tv)
 
 sum w_tv
 
+estpost sum w_tv 
+esttab using _output/summary_wtv.tex, cells("count mean sd min max") title(Within variability of TV channels\label{tab1}) replace
 
 //*#############################################################################
 //* Part 2.
