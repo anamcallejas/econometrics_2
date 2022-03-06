@@ -1,28 +1,34 @@
 \begin{table}[htbp]\centering
 \def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
-\caption{ Regression of Social Participation over number of TV channels using OLS and Fixed Effect adding interaction of subdistrict and wave}
+\caption{ Regression of Social Participation over number of TV channels using OLS and Fixed Effect adding interaction of district and wave}
 \begin{tabular}{l*{2}{c}}
 \hline\hline
             &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}\\
             &\multicolumn{1}{c}{OLS}&\multicolumn{1}{c}{Fixed Effect}\\
 \hline
-tvchannels  &     -0.0287\sym{***}&     -0.0120         \\
-            &     (-7.27)         &     (-1.81)         \\
+tvchannels  &     -0.0287\sym{**} &     -0.0120         \\
+            &     (-2.59)         &     (-1.81)         \\
 [1em]
-age         &    0.000918\sym{***}&     0.00263         \\
-            &      (6.06)         &      (1.42)         \\
+age         &    0.000918\sym{**} &     0.00263         \\
+            &      (3.14)         &      (1.42)         \\
 [1em]
 gender      &    0.000239         &      -0.185\sym{*}  \\
-            &      (0.06)         &     (-2.51)         \\
+            &      (0.04)         &     (-2.51)         \\
 [1em]
 years\_educ  &      0.0120\sym{***}&      0.0260\sym{***}\\
-            &     (18.68)         &      (5.60)         \\
+            &     (10.80)         &      (5.60)         \\
 [1em]
 lnexpcap    &      0.0394\sym{***}&     -0.0181         \\
-            &      (7.60)         &     (-0.67)         \\
+            &      (3.73)         &     (-0.67)         \\
 [1em]
-\_cons      &      -0.277         &       0.588         \\
-            &     (-1.83)         &      (1.84)         \\
+1991.wave   &           0         &                     \\
+            &         (.)         &                     \\
+[1em]
+2003.wave   &           0         &                     \\
+            &         (.)         &                     \\
+[1em]
+\_cons      &      -0.277\sym{**} &       0.588         \\
+            &     (-2.65)         &      (1.84)         \\
 \hline
 \(N\)       &       49715         &        1438         \\
 \hline\hline

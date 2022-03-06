@@ -1,7 +1,7 @@
 //* Authors: Callejas A.; Gohlami A.; Montealegre F.
 //* Date:
 //* The latest version of this file along the entire folder structure is in
-//* GitHub: XXX
+//* GitHub: https://github.com/anamcallejas/econometrics_2
 
 //*#############################################################################
 //* 0. Set working directory and log.
@@ -9,10 +9,8 @@
 
 clear all
 set more off
-*capture log close
+
 cd "C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps1"
-*cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps1"
-*log using "PS1_Ana",text replace
 
 ssc install estout, replace
 use _data/group9.dta
@@ -152,9 +150,9 @@ graph save _graphs\mean_year_org.gph, replace
 
 graph combine _graphs\mean_year_soburial.gph _graphs\mean_year_sowomen.gph _graphs\mean_year_soreligious.gph _graphs\mean_year_soyouth.gph _graphs\mean_year_org.gph, rows(1) , title("Average participation in 1991 and 2003")
 
-graph save _graphs\Graph1.ghp , replace
+graph save _graphs\graph1.ghp , replace
 global infile="_output"
-graph export "_output/Graph1.pdf", as(pdf) replace
+graph export "_output/graph1.pdf", as(pdf) replace
 
 
 
@@ -237,13 +235,13 @@ graph save _graphs\mean_dis_org.gph, replace
 graph combine _graphs\mean_dis_soburial.gph _graphs\mean_dis_sowomen.gph _graphs\mean_dis_soreligious.gph _graphs\mean_dis_soyouth.gph _graphs\mean_dis_org.gph , rows(1) , title("Means of organization by sub-district in descending order")
 
 
-graph save _graphs\Graph2.ghp , replace
+graph save _graphs\graph2.ghp , replace
 global infile="_output"
-graph export "_output/Graph2.pdf", as(pdf) replace
+graph export "_output/graph2.pdf", as(pdf) replace
 
 
 //*=============================================================================
-//* 4. Within variability
+//* 4. Table "Within variability"
 //*=============================================================================
 
 clear all
@@ -297,10 +295,10 @@ drop mean_sd_org
 //*----- report:
 
 estpost sum w_soburial w_sowomen w_soreligious w_soyouth w_org
-esttab using _output/summary_1.tex, cells("count mean sd min max") title(Within variability\label{tab1}) replace
+esttab using _output/tab1.tex, cells("count mean sd min max") title(Within variability\label{tab2}) replace
 
 //*=============================================================================
-//* 5. TV channels: between and within variability
+//* 5. Graph 3 Between variability TV channels AND table 3 and 4 between and within variability TV channels
 //*=============================================================================
 
 clear all
@@ -311,15 +309,15 @@ collapse (mean) mean_tv=tvchannels, by(kecnum)
 summarize mean_tv
 
 estpost sum mean_tv
-esttab using _output/summary_btv.tex, cells("count mean sd min max") title(Between variability of TV channels\label{tab1}) replace
+esttab using _output/summary_btv.tex, cells("count mean sd min max") title(Between variability of TV channels\label{tab3}) replace
 
 gsort -mean_tv
 generate n =_n
 twoway  (bar mean_tv n) , title("Means of TV channels by sub-district in descending order")
 
-graph save _graphs\Graph3.ghp , replace
+graph save _graphs\graph3.ghp , replace
 global infile="_output"
-graph export "_output/Graph3.pdf", as(pdf) replace
+graph export "_output/graph3.pdf", as(pdf) replace
 
 clear all
 use _data/group9_v2
@@ -333,7 +331,7 @@ generate w_tv = (tvchannels - mean_sd_tv - mean_tv)
 sum w_tv
 
 estpost sum w_tv 
-esttab using _output/summary_wtv.tex, cells("count mean sd min max") title(Within variability of TV channels\label{tab1}) replace
+esttab using _output/summary_wtv.tex, cells("count mean sd min max") title(Within variability of TV channels\label{tab4}) replace
 
 //*#############################################################################
 //* Part 2.
@@ -352,7 +350,7 @@ eststo: reg soreligious tvchannels
 eststo: reg soyouth tvchannels
 eststo: reg org tvchannels
 
-esttab using _output/regressions_v2.tex, title(Regression of the number of TV channels on social organization participation\label{tab1}) replace
+esttab using _output/regressions_v2.tex, title(Regression of the number of TV channels on social organization participation\label{tab5}) replace
 
 //*#############################################################################
 //* Part 3.
@@ -410,13 +408,6 @@ estimates store m4
 
 esttab m3 m4 using _output/Table3.tex, title (" Regression of Social Participation over number of TV channels using OLS and Fixed Effect adding interaction of district and wave") mtitles("OLS" "Fixed Effect") drop (*.kecnum *.kabidwave) replace
 
-
-//*#############################################################################
-//* n. Close log.
-//*#############################################################################
-
-*log close
-*translate 3_log\log.smcl 3_log\log.pdf, replace
 
 //*#############################################################################
 
