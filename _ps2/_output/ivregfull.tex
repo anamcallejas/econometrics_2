@@ -1,19 +1,13 @@
 \begin{table}[htbp]\centering
 \def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
-\caption{Regression of lprice on IV of group 1}
+\caption{Ivreg2 estimation with all instruments}
 \begin{tabular}{l*{1}{c}}
 \hline\hline
             &\multicolumn{1}{c}{(1)}\\
-            &\multicolumn{1}{c}{lprice}\\
+            &\multicolumn{1}{c}{lsales\_volume}\\
 \hline
-protein1    &      -1.716\sym{***}\\
-            &    (0.0717)         \\
-[1em]
-fat1        &      -0.253\sym{***}\\
-            &    (0.0111)         \\
-[1em]
-carbo1      &      -0.108\sym{***}\\
-            &    (0.0103)         \\
+lprice      &      -0.955\sym{***}\\
+            &     (0.198)         \\
 \hline
 \(N\)       &        8204         \\
 \hline\hline

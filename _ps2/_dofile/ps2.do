@@ -16,7 +16,7 @@ cd "C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps2"
 
 *ssc install ivreg2
 *ssc install ranktest
-
+*ssc install ivregress2
 *ssc install estout, replace
 use _data/group9.dta
 
@@ -69,20 +69,6 @@ label variable carbo2 "(iv) avg carb of other products of the same and other fir
 label variable fat2 "(iv) avg fat of other products of the same and other firms"
 label variable protein2 "(iv) avg protein of other products of the same and other firms"
 
-//-----Drop descarted and unused variables
-
-drop pri_label
-drop category
-drop subcat
-drop rank
-drop hhsize
-
-drop energy
-drop hyper
-drop poptot
-drop constot
-drop mtot
-drop wtot
 
 //*=============================================================================
 //* 1. OLS estimation
@@ -147,7 +133,7 @@ estat vif
 reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1,r
 test carbo1
 
-esttab using _output/regcarbo1.tex, title(Regression of lprice \label{tabcarb1}) se keep(carbo1) replace
+esttab using _output/regcarbo1.tex, title("Testing carbo1 relevance as an IV") se keep(carbo1) replace
 
 //*=============================================================================
 //* 4. Two stage least square approach
@@ -156,15 +142,18 @@ esttab using _output/regcarbo1.tex, title(Regression of lprice \label{tabcarb1})
 *Regression using two stage least square manually
 reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
 estimate store reg_first 
-predict lprice_hat
+predict lprice_hat 
 
 reg lsales_volume lprice_hat i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
 estimate store reg_second
 
+esttab using _output/pricehat.tex, title("Manual estimation of log prices coefficient") se keep(lprice_hat) replace
+
 *Regression using ivreg2 command
 ivreg2 lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1), endog(lprice)
 
-estat firststage
+esttab using _output/pricehativreg.tex, title("Estimation of log prices coefficient from ivreg2") se keep(lprice) replace
+
 
 //*=============================================================================
 //* 5. Endogeneity of log price
@@ -197,7 +186,7 @@ ivreg2 lsales_volume i.firm carbo fat protein flav cream drink i.store yweek per
 
 reg lprice protein1 fat1 carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
 
-esttab using _output/regIV1.tex, title("Regression of lprice on IV of group 1" \label{tabcarb1}) se keep(carbo1 fat1 protein1) replace
+esttab using _output/regIV1.tex, title("Regression of lprice on IV of group 1") se keep(carbo1 fat1 protein1) replace
 
 
 
@@ -207,15 +196,8 @@ esttab using _output/regIV1.tex, title("Regression of lprice on IV of group 1" \
 
 ivreg2 lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1 protein1 fat1), endog(lprice)
 
-//*=============================================================================
-//* 2/B Following the slides
-//*=============================================================================
+esttab using _output/ivregfull.tex, title("Ivreg2 estimation with all instruments") se keep(lprice) replace
 
-clear all
-use _data/group9_v2
-
-ivregress 2sls lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1 protein1 fat1), first
-estat firststage /* gives a test of H0:Exogeneity*/
 
 //*#############################################################################
 //* n. Close log.
