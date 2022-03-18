@@ -13,7 +13,10 @@ set more off
 cd "C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps2"
 *log using _log/log, replace
 
-*ssc install estout, replace
+ssc install ivreg2
+ssc install ranktest
+
+ssc install estout, replace
 use _data/group9.dta
 
 
@@ -68,7 +71,7 @@ label variable protein2 "(iv) avg protein of other products of the same and othe
 save _data/group9_v2 , replace
 
 //*=============================================================================
-//* 1.
+//* 1. OLS estimation
 //*=============================================================================
 
 clear all
@@ -107,8 +110,8 @@ corr constot sqmtot incometot sqm_own poptot wtot mtot hhtot age_pop hyper
 
 //-----Final regression
 
-reg lsales_volume lprice i.firm carbo fat protein flav cream drink hhtot age_pop sqmtot sqm_own yweek periodo1
-
+reg lsales_volume lprice i.firm carbo fat protein flav cream drink i.store yweek periodo1, robust
+ 
 //-----Drop descarted and unused variables
 
 drop pri_label
@@ -125,7 +128,7 @@ drop constot
 drop mtot
 drop wtot
 
- reg lsales_volume lprice i.firm carbo fat protein flav cream drink i.store yweek periodo1
+
 
 *Proof of multicollinearity of energy variable
 reg sales_volume protein fat carbo energy
@@ -136,32 +139,43 @@ estat vif
 
 
 
-
-
-
-//*=============================================================================
-//* 1. OLS estimation
-//*=============================================================================
-
-
-
 //*=============================================================================
 //* 3. carbo1 as an instrument for log price
 //*=============================================================================
 
+reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1
 
+esttab using _output/regcarbo1.tex, title(Regression of lprice \label{tabcarb1}), keep(carbo1), replace
 
 //*=============================================================================
 //* 4. Two stage least square approach
 //*=============================================================================
 
+*Regression using two stage least square manually
+reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
+estimate store reg_first 
+predict lprice_hat
 
+reg lsales_volume lprice_hat i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
+estimate store reg_second
 
+*Regression using ivreg2 command
+ivreg2 lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1), endog(lprice)
+
+estat firststage
 
 //*=============================================================================
 //* 5. Endogeneity of log price
 //*=============================================================================
 
+*Manual Hausman test for endogeneity of lprice
+reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
+predict v, resid
+
+reg lsales_volume lprice i.firm carbo fat protein flav cream drink i.store yweek periodo1 v, r
+
+*Endog command for endogeneity
+estat endog 
 
 //*#############################################################################
 //* Part 3
