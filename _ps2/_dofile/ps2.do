@@ -12,7 +12,7 @@ set more off
 
 cd "C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps2"
 *cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps2"
-*log using _log/log, replace
+log using _log/log, replace
 
 *ssc install ivreg2
 *ssc install ranktest
@@ -203,7 +203,7 @@ esttab using _output/ivregfull.tex, title("Ivreg2 estimation with all instrument
 //* n. Close log.
 //*#############################################################################
 
-*log close
-*translate _log\log.smcl _log\log.pdf, replace
+log close
+translate _log\log.smcl _log\log.pdf, replace
 
 //*#############################################################################

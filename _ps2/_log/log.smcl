@@ -1,0 +1,1365 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps2\_log/log.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}18 Mar 2022, 23:29:18
+{txt}
+{com}. 
+. *ssc install ivreg2
+. *ssc install ranktest
+. *ssc install ivregress2
+. *ssc install estout, replace
+. use _data/group9.dta
+{txt}
+{com}. 
+. 
+. //*#############################################################################
+. //* Part 2
+. //*#############################################################################
+. //*=============================================================================
+. //* Setting variable labels
+. //*=============================================================================
+. 
+. *----- Time variables ------
+. label variable yweek "complete years"
+{txt}
+{com}. label variable periodo1 "seasonality variable"
+{txt}
+{com}. drop week
+{txt}
+{com}. drop periodo2
+{txt}
+{com}. 
+. *----- Product variables (pv) ------
+. label variable firm "(pv) ID number of the producer"
+{txt}
+{com}. label variable lsales_volume "(pv) (y) vol sales of i in week t"
+{txt}
+{com}. label variable lprice "log price per i"
+{txt}
+{com}. label variable pri_labe "(pv) 1 if i is from a private label"
+{txt}
+{com}. label variable energy "(pv) calories per 100g"
+{txt}
+{com}. label variable carbo "(pv) sugar per 100g"
+{txt}
+{com}. label variable fat "(pv) fat per 100g"
+{txt}
+{com}. label variable protein "(pv) protein per 100g"
+{txt}
+{com}. label variable flav "(pv) 1 if flavored, 0 if natural or white"
+{txt}
+{com}. label variable cream "(pv) 1 if creamy texture"
+{txt}
+{com}. label variable drink "(pv) 1 if sold in bottles only"
+{txt}
+{com}. 
+. *----- Store variables (st) ------
+. label variable hyper "(st) 1 if superstore"
+{txt}
+{com}. label variable poptot "(st) population"
+{txt}
+{com}. label variable hhtot "(st) number of hh"
+{txt}
+{com}. label variable incometot "(st) total income"
+{txt}
+{com}. label variable constot "(st) value of consumption"
+{txt}
+{com}. label variable mtot "(st) number of men in market"
+{txt}
+{com}. label variable wtot "(st) number of women in market"
+{txt}
+{com}. label variable age_pop "(st) average population age"
+{txt}
+{com}. label variable sqmtot "(st) total sqrd meters of stores"
+{txt}
+{com}. label variable sqm_own "(st) sqrd meters of store"
+{txt}
+{com}. 
+. *Possible instrumental variables (iv)
+. label variable energy1 "(iv) avg energy of other products of the same firm"
+{txt}
+{com}. label variable carbo1 "(iv) avg carbo of other products of the same firm"
+{txt}
+{com}. label variable fat1 "(iv) avg fat of other products of the same firm"
+{txt}
+{com}. label variable protein1 "(iv) avg protein of other products of the same firm"
+{txt}
+{com}. label variable energy2 "(iv) avg energy of other products of the same and other firms"
+{txt}
+{com}. label variable carbo2 "(iv) avg carb of other products of the same and other firms"
+{txt}
+{com}. label variable fat2 "(iv) avg fat of other products of the same and other firms"
+{txt}
+{com}. label variable protein2 "(iv) avg protein of other products of the same and other firms"
+{txt}
+{com}. 
+. 
+. //*=============================================================================
+. //* 1. OLS estimation
+. //*=============================================================================
+. 
+. //-----generate dummy for firm 
+. tab firm, gen(firm)
+
+    {txt}(pv) ID {c |}
+  number of {c |}
+        the {c |}
+   producer {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}      1,870       22.06       22.06
+{txt}          2 {c |}{res}      2,710       31.98       54.04
+{txt}          3 {c |}{res}      1,072       12.65       66.69
+{txt}          4 {c |}{res}        551        6.50       73.19
+{txt}          5 {c |}{res}        271        3.20       76.39
+{txt}          6 {c |}{res}        818        9.65       86.04
+{txt}          7 {c |}{res}        476        5.62       91.66
+{txt}          8 {c |}{res}        262        3.09       94.75
+{txt}          9 {c |}{res}        445        5.25      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      8,475      100.00
+{txt}
+{com}. drop firm1
+{txt}
+{com}. 
+. tab store, gen(store)
+
+      {txt}store {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}        442        5.22        5.22
+{txt}          2 {c |}{res}        396        4.67        9.89
+{txt}          3 {c |}{res}        390        4.60       14.49
+{txt}          4 {c |}{res}        386        4.55       19.04
+{txt}          5 {c |}{res}        395        4.66       23.71
+{txt}          6 {c |}{res}        429        5.06       28.77
+{txt}          7 {c |}{res}        439        5.18       33.95
+{txt}          8 {c |}{res}        434        5.12       39.07
+{txt}          9 {c |}{res}        443        5.23       44.29
+{txt}         10 {c |}{res}        451        5.32       49.62
+{txt}         11 {c |}{res}        449        5.30       54.91
+{txt}         12 {c |}{res}        448        5.29       60.20
+{txt}         13 {c |}{res}        442        5.22       65.42
+{txt}         14 {c |}{res}        441        5.20       70.62
+{txt}         15 {c |}{res}        444        5.24       75.86
+{txt}         16 {c |}{res}        450        5.31       81.17
+{txt}         17 {c |}{res}        398        4.70       85.86
+{txt}         18 {c |}{res}        398        4.70       90.56
+{txt}         19 {c |}{res}        402        4.74       95.30
+{txt}         20 {c |}{res}        398        4.70      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      8,475      100.00
+{txt}
+{com}. drop store1
+{txt}
+{com}. 
+. save _data/group9_v2 , replace
+{txt}{p 0 4 2}
+file {bf}
+_data/group9_v2.dta{rm}
+saved
+{p_end}
+
+{com}. 
+. //-----Test for multicollinearity (energy)
+. reg lsales_volume lprice i.firm pri_label energy carbo fat protein flav cream drink
+{txt}{p 0 6 2}note: {bf:pri_label} omitted because of collinearity.{p_end}
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}     8,475
+{txt}{hline 13}{c +}{hline 34}   F(16, 8458)     = {res}   412.15
+{txt}       Model {c |} {res} 5044.44267        16  315.277667   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 6469.95078     8,458  .764950435   {txt}R-squared       ={res}    0.4381
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4370
+{txt}       Total {c |} {res} 11514.3934     8,474  1.35879082   {txt}Root MSE        =   {res} .87461
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}lprice {c |}{col 14}{res}{space 2}-2.949769{col 26}{space 2} .0490519{col 37}{space 1}  -60.14{col 46}{space 3}0.000{col 54}{space 4}-3.045923{col 67}{space 3}-2.853615
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 2.600131{col 26}{space 2} .0595329{col 37}{space 1}   43.68{col 46}{space 3}0.000{col 54}{space 4} 2.483432{col 67}{space 3}  2.71683
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}  1.65683{col 26}{space 2} .0634823{col 37}{space 1}   26.10{col 46}{space 3}0.000{col 54}{space 4} 1.532389{col 67}{space 3} 1.781271
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}  1.37308{col 26}{space 2} .0536542{col 37}{space 1}   25.59{col 46}{space 3}0.000{col 54}{space 4} 1.267905{col 67}{space 3} 1.478255
+{txt}{space 10}5  {c |}{col 14}{res}{space 2} .8376174{col 26}{space 2} .0681731{col 37}{space 1}   12.29{col 46}{space 3}0.000{col 54}{space 4} .7039814{col 67}{space 3} .9712534
+{txt}{space 10}6  {c |}{col 14}{res}{space 2} .1123408{col 26}{space 2} .0447441{col 37}{space 1}    2.51{col 46}{space 3}0.012{col 54}{space 4} .0246315{col 67}{space 3} .2000501
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-1.018032{col 26}{space 2} .0518075{col 37}{space 1}  -19.65{col 46}{space 3}0.000{col 54}{space 4}-1.119588{col 67}{space 3}-.9164771
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.0840328{col 26}{space 2} .0631598{col 37}{space 1}   -1.33{col 46}{space 3}0.183{col 54}{space 4}-.2078415{col 67}{space 3} .0397759
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.6301889{col 26}{space 2} .0506593{col 37}{space 1}  -12.44{col 46}{space 3}0.000{col 54}{space 4}-.7294934{col 67}{space 3}-.5308844
+{txt}{space 12} {c |}
+{space 3}pri_label {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 6}energy {c |}{col 14}{res}{space 2}-.0303929{col 26}{space 2} .0105356{col 37}{space 1}   -2.88{col 46}{space 3}0.004{col 54}{space 4}-.0510452{col 67}{space 3}-.0097405
+{txt}{space 7}carbo {c |}{col 14}{res}{space 2} .1975169{col 26}{space 2} .0450635{col 37}{space 1}    4.38{col 46}{space 3}0.000{col 54}{space 4} .1091814{col 67}{space 3} .2858523
+{txt}{space 9}fat {c |}{col 14}{res}{space 2} .3340295{col 26}{space 2} .0971297{col 37}{space 1}    3.44{col 46}{space 3}0.001{col 54}{space 4} .1436315{col 67}{space 3} .5244274
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-.6558388{col 26}{space 2} .0734923{col 37}{space 1}   -8.92{col 46}{space 3}0.000{col 54}{space 4}-.7999017{col 67}{space 3}-.5117759
+{txt}{space 8}flav {c |}{col 14}{res}{space 2} .0726648{col 26}{space 2} .0479093{col 37}{space 1}    1.52{col 46}{space 3}0.129{col 54}{space 4}-.0212492{col 67}{space 3} .1665789
+{txt}{space 7}cream {c |}{col 14}{res}{space 2}-.2622771{col 26}{space 2} .0442365{col 37}{space 1}   -5.93{col 46}{space 3}0.000{col 54}{space 4}-.3489914{col 67}{space 3}-.1755627
+{txt}{space 7}drink {c |}{col 14}{res}{space 2} -.924203{col 26}{space 2}  .076275{col 37}{space 1}  -12.12{col 46}{space 3}0.000{col 54}{space 4}-1.073721{col 67}{space 3}-.7746852
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 8.660894{col 26}{space 2} .2098742{col 37}{space 1}   41.27{col 46}{space 3}0.000{col 54}{space 4} 8.249489{col 67}{space 3} 9.072299
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. estat vif
+
+{txt}    Variable {c |}       VIF       1/VIF  
+{hline 13}{c +}{hline 22}
+{space 6}lprice {c |} {res}     3.44    0.290591
+{txt}{space 8}firm {c |}
+{space 10}2  {c |} {res}     8.54    0.117082
+{txt}{space 10}3  {c |} {res}     4.93    0.202706
+{txt}{space 10}4  {c |} {res}     1.94    0.515787
+{txt}{space 10}5  {c |} {res}     1.59    0.627410
+{txt}{space 10}6  {c |} {res}     1.93    0.517000
+{txt}{space 10}7  {c |} {res}     1.58    0.634374
+{txt}{space 10}8  {c |} {res}     1.32    0.755245
+{txt}{space 10}9  {c |} {res}     1.41    0.706936
+{txt}{space 6}energy {c |} {res}   707.28    0.001414
+{txt}{space 7}carbo {c |} {res}   369.67    0.002705
+{txt}{space 9}fat {c |} {res}   296.07    0.003378
+{txt}{space 5}protein {c |} {res}    30.65    0.032625
+{txt}{space 8}flav {c |} {res}     6.23    0.160496
+{txt}{space 7}cream {c |} {res}     3.93    0.254423
+{txt}{space 7}drink {c |} {res}     8.63    0.115848
+{txt}{hline 13}{c +}{hline 22}
+    Mean VIF {c |} {res}    90.57
+{txt}
+{com}. reg lsales_volume lprice i.firm pri_label carbo fat protein flav cream drink
+{txt}{p 0 6 2}note: {bf:pri_label} omitted because of collinearity.{p_end}
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}     8,475
+{txt}{hline 13}{c +}{hline 34}   F(15, 8459)     = {res}   438.70
+{txt}       Model {c |} {res} 5038.07678        15  335.871785   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 6476.31667     8,459  .765612563   {txt}R-squared       ={res}    0.4375
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4365
+{txt}       Total {c |} {res} 11514.3934     8,474  1.35879082   {txt}Root MSE        =   {res} .87499
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}lprice {c |}{col 14}{res}{space 2}-2.917864{col 26}{space 2} .0478095{col 37}{space 1}  -61.03{col 46}{space 3}0.000{col 54}{space 4}-3.011582{col 67}{space 3}-2.824146
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 2.497036{col 26}{space 2} .0476337{col 37}{space 1}   52.42{col 46}{space 3}0.000{col 54}{space 4} 2.403663{col 67}{space 3}  2.59041
+{txt}{space 10}3  {c |}{col 14}{res}{space 2} 1.631249{col 26}{space 2} .0628871{col 37}{space 1}   25.94{col 46}{space 3}0.000{col 54}{space 4} 1.507975{col 67}{space 3} 1.754523
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} 1.326036{col 26}{space 2}  .051138{col 37}{space 1}   25.93{col 46}{space 3}0.000{col 54}{space 4} 1.225793{col 67}{space 3}  1.42628
+{txt}{space 10}5  {c |}{col 14}{res}{space 2} .8798483{col 26}{space 2} .0666116{col 37}{space 1}   13.21{col 46}{space 3}0.000{col 54}{space 4} .7492733{col 67}{space 3} 1.010423
+{txt}{space 10}6  {c |}{col 14}{res}{space 2} .1237598{col 26}{space 2} .0445879{col 37}{space 1}    2.78{col 46}{space 3}0.006{col 54}{space 4} .0363566{col 67}{space 3}  .211163
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.9624196{col 26}{space 2}  .048108{col 37}{space 1}  -20.01{col 46}{space 3}0.000{col 54}{space 4}-1.056723{col 67}{space 3}-.8681163
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.1247556{col 26}{space 2} .0615887{col 37}{space 1}   -2.03{col 46}{space 3}0.043{col 54}{space 4}-.2454846{col 67}{space 3}-.0040266
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.5990884{col 26}{space 2} .0495202{col 37}{space 1}  -12.10{col 46}{space 3}0.000{col 54}{space 4}-.6961602{col 67}{space 3}-.5020167
+{txt}{space 12} {c |}
+{space 3}pri_label {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 7}carbo {c |}{col 14}{res}{space 2}  .068349{col 26}{space 2} .0050877{col 37}{space 1}   13.43{col 46}{space 3}0.000{col 54}{space 4} .0583758{col 67}{space 3} .0783222
+{txt}{space 9}fat {c |}{col 14}{res}{space 2} .0551336{col 26}{space 2} .0093574{col 37}{space 1}    5.89{col 46}{space 3}0.000{col 54}{space 4} .0367908{col 67}{space 3} .0734763
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-.8383385{col 26}{space 2} .0374184{col 37}{space 1}  -22.40{col 46}{space 3}0.000{col 54}{space 4}-.9116876{col 67}{space 3}-.7649893
+{txt}{space 8}flav {c |}{col 14}{res}{space 2} .0373449{col 26}{space 2} .0463385{col 37}{space 1}    0.81{col 46}{space 3}0.420{col 54}{space 4}-.0534899{col 67}{space 3} .1281797
+{txt}{space 7}cream {c |}{col 14}{res}{space 2}-.2352654{col 26}{space 2} .0432529{col 37}{space 1}   -5.44{col 46}{space 3}0.000{col 54}{space 4}-.3200516{col 67}{space 3}-.1504792
+{txt}{space 7}drink {c |}{col 14}{res}{space 2}-.9944339{col 26}{space 2} .0723167{col 37}{space 1}  -13.75{col 46}{space 3}0.000{col 54}{space 4}-1.136192{col 67}{space 3}-.8526755
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 8.933501{col 26}{space 2} .1874771{col 37}{space 1}   47.65{col 46}{space 3}0.000{col 54}{space 4}    8.566{col 67}{space 3} 9.301002
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. estat vif
+
+{txt}    Variable {c |}       VIF       1/VIF  
+{hline 13}{c +}{hline 22}
+{space 6}lprice {c |} {res}     3.27    0.306155
+{txt}{space 8}firm {c |}
+{space 10}2  {c |} {res}     5.46    0.183042
+{txt}{space 10}3  {c |} {res}     4.84    0.206740
+{txt}{space 10}4  {c |} {res}     1.76    0.568283
+{txt}{space 10}5  {c |} {res}     1.52    0.657740
+{txt}{space 10}6  {c |} {res}     1.92    0.521078
+{txt}{space 10}7  {c |} {res}     1.36    0.736330
+{txt}{space 10}8  {c |} {res}     1.26    0.794956
+{txt}{space 10}9  {c |} {res}     1.35    0.740471
+{txt}{space 7}carbo {c |} {res}     4.71    0.212402
+{txt}{space 9}fat {c |} {res}     2.75    0.364233
+{txt}{space 5}protein {c |} {res}     7.94    0.125962
+{txt}{space 8}flav {c |} {res}     5.82    0.171710
+{txt}{space 7}cream {c |} {res}     3.75    0.266356
+{txt}{space 7}drink {c |} {res}     7.75    0.128989
+{txt}{hline 13}{c +}{hline 22}
+    Mean VIF {c |} {res}     3.70
+{txt}
+{com}. 
+. //-----Test for multicollinearity (pri_label)
+. * variable firm8 gets ommited because of collinearity in the following regression, indicating possible correlation between regressors.
+. reg lsales_volume lprice firm2 firm3 firm4 firm5 firm6 firm7 firm8 firm9 pri_label carbo fat protein flav cream drink
+{txt}{p 0 6 2}note: {bf:firm8} omitted because of collinearity.{p_end}
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}     8,475
+{txt}{hline 13}{c +}{hline 34}   F(15, 8459)     = {res}   438.70
+{txt}       Model {c |} {res} 5038.07678        15  335.871785   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 6476.31667     8,459  .765612563   {txt}R-squared       ={res}    0.4375
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4365
+{txt}       Total {c |} {res} 11514.3934     8,474  1.35879082   {txt}Root MSE        =   {res} .87499
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}lprice {c |}{col 14}{res}{space 2}-2.917864{col 26}{space 2} .0478095{col 37}{space 1}  -61.03{col 46}{space 3}0.000{col 54}{space 4}-3.011582{col 67}{space 3}-2.824146
+{txt}{space 7}firm2 {c |}{col 14}{res}{space 2} 2.621792{col 26}{space 2}  .069895{col 37}{space 1}   37.51{col 46}{space 3}0.000{col 54}{space 4} 2.484781{col 67}{space 3} 2.758803
+{txt}{space 7}firm3 {c |}{col 14}{res}{space 2} 1.756004{col 26}{space 2} .0842663{col 37}{space 1}   20.84{col 46}{space 3}0.000{col 54}{space 4} 1.590822{col 67}{space 3} 1.921187
+{txt}{space 7}firm4 {c |}{col 14}{res}{space 2} 1.450792{col 26}{space 2} .0689899{col 37}{space 1}   21.03{col 46}{space 3}0.000{col 54}{space 4} 1.315555{col 67}{space 3} 1.586029
+{txt}{space 7}firm5 {c |}{col 14}{res}{space 2} 1.004604{col 26}{space 2} .0844725{col 37}{space 1}   11.89{col 46}{space 3}0.000{col 54}{space 4} .8390172{col 67}{space 3} 1.170191
+{txt}{space 7}firm6 {c |}{col 14}{res}{space 2} .2485154{col 26}{space 2}  .075344{col 37}{space 1}    3.30{col 46}{space 3}0.001{col 54}{space 4} .1008229{col 67}{space 3}  .396208
+{txt}{space 7}firm7 {c |}{col 14}{res}{space 2} -.837664{col 26}{space 2} .0689395{col 37}{space 1}  -12.15{col 46}{space 3}0.000{col 54}{space 4}-.9728022{col 67}{space 3}-.7025258
+{txt}{space 7}firm8 {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 7}firm9 {c |}{col 14}{res}{space 2}-.4743328{col 26}{space 2} .0749194{col 37}{space 1}   -6.33{col 46}{space 3}0.000{col 54}{space 4}-.6211931{col 67}{space 3}-.3274725
+{txt}{space 3}pri_label {c |}{col 14}{res}{space 2} .1247556{col 26}{space 2} .0615887{col 37}{space 1}    2.03{col 46}{space 3}0.043{col 54}{space 4} .0040266{col 67}{space 3} .2454846
+{txt}{space 7}carbo {c |}{col 14}{res}{space 2}  .068349{col 26}{space 2} .0050877{col 37}{space 1}   13.43{col 46}{space 3}0.000{col 54}{space 4} .0583758{col 67}{space 3} .0783222
+{txt}{space 9}fat {c |}{col 14}{res}{space 2} .0551336{col 26}{space 2} .0093574{col 37}{space 1}    5.89{col 46}{space 3}0.000{col 54}{space 4} .0367908{col 67}{space 3} .0734763
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-.8383385{col 26}{space 2} .0374184{col 37}{space 1}  -22.40{col 46}{space 3}0.000{col 54}{space 4}-.9116876{col 67}{space 3}-.7649893
+{txt}{space 8}flav {c |}{col 14}{res}{space 2} .0373449{col 26}{space 2} .0463385{col 37}{space 1}    0.81{col 46}{space 3}0.420{col 54}{space 4}-.0534899{col 67}{space 3} .1281797
+{txt}{space 7}cream {c |}{col 14}{res}{space 2}-.2352654{col 26}{space 2} .0432529{col 37}{space 1}   -5.44{col 46}{space 3}0.000{col 54}{space 4}-.3200516{col 67}{space 3}-.1504792
+{txt}{space 7}drink {c |}{col 14}{res}{space 2}-.9944339{col 26}{space 2} .0723167{col 37}{space 1}  -13.75{col 46}{space 3}0.000{col 54}{space 4}-1.136192{col 67}{space 3}-.8526755
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 8.808746{col 26}{space 2} .2046875{col 37}{space 1}   43.04{col 46}{space 3}0.000{col 54}{space 4} 8.407508{col 67}{space 3} 9.209983
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. *this tab indicates that pri_label is possibly collinear with the set of firm dummies
+. tab firm pri_label
+
+   {txt}(pv) ID {c |}
+ number of {c |} (pv) 1 if i is from a
+       the {c |}     private label
+  producer {c |}         0          1 {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+         1 {c |}{res}         0      1,870 {txt}{c |}{res}     1,870 
+{txt}         2 {c |}{res}     2,710          0 {txt}{c |}{res}     2,710 
+{txt}         3 {c |}{res}     1,072          0 {txt}{c |}{res}     1,072 
+{txt}         4 {c |}{res}       551          0 {txt}{c |}{res}       551 
+{txt}         5 {c |}{res}       271          0 {txt}{c |}{res}       271 
+{txt}         6 {c |}{res}       818          0 {txt}{c |}{res}       818 
+{txt}         7 {c |}{res}       476          0 {txt}{c |}{res}       476 
+{txt}         8 {c |}{res}       262          0 {txt}{c |}{res}       262 
+{txt}         9 {c |}{res}       445          0 {txt}{c |}{res}       445 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}     6,605      1,870 {txt}{c |}{res}     8,475 
+{txt}
+{com}. 
+. *we run this regression to identify the exact dependency of pri_label and the firm dummies. As expected, firm1 and pri_label are a linear combiantion of each other.
+. reg pri_label lprice firm2 firm3 firm4 firm5 firm6 firm7 firm8 firm9 carbo fat protein flav cream drink
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}     8,475
+{txt}{hline 13}{c +}{hline 34}   F(15, 8459)     = {res}        .
+{txt}       Model {c |} {res} 1457.38643        15  97.1590954   {txt}Prob > F        ={res}         .
+{txt}    Residual {c |} {res}          0     8,459           0   {txt}R-squared       ={res}    1.0000
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    1.0000
+{txt}       Total {c |} {res} 1457.38643     8,474  .171983294   {txt}Root MSE        =   {res}      0
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   pri_label{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}lprice {c |}{col 14}{res}{space 2}-5.10e-13{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}firm2 {c |}{col 14}{res}{space 2}       -1{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}firm3 {c |}{col 14}{res}{space 2}       -1{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}firm4 {c |}{col 14}{res}{space 2}       -1{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}firm5 {c |}{col 14}{res}{space 2}       -1{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}firm6 {c |}{col 14}{res}{space 2}       -1{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}firm7 {c |}{col 14}{res}{space 2}       -1{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}firm8 {c |}{col 14}{res}{space 2}       -1{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}firm9 {c |}{col 14}{res}{space 2}       -1{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}carbo {c |}{col 14}{res}{space 2} 4.23e-14{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}-4.21e-14{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-3.42e-13{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 8}flav {c |}{col 14}{res}{space 2}-4.08e-13{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}cream {c |}{col 14}{res}{space 2}-2.50e-13{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}drink {c |}{col 14}{res}{space 2}-6.34e-13{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}        1{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. reg lsales_volume lprice firm2 firm3 firm4 firm5 firm6 firm7 firm8 firm9 carbo fat protein flav cream drink
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}     8,475
+{txt}{hline 13}{c +}{hline 34}   F(15, 8459)     = {res}   438.70
+{txt}       Model {c |} {res} 5038.07678        15  335.871785   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 6476.31667     8,459  .765612563   {txt}R-squared       ={res}    0.4375
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4365
+{txt}       Total {c |} {res} 11514.3934     8,474  1.35879082   {txt}Root MSE        =   {res} .87499
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}lprice {c |}{col 14}{res}{space 2}-2.917864{col 26}{space 2} .0478095{col 37}{space 1}  -61.03{col 46}{space 3}0.000{col 54}{space 4}-3.011582{col 67}{space 3}-2.824146
+{txt}{space 7}firm2 {c |}{col 14}{res}{space 2} 2.497036{col 26}{space 2} .0476337{col 37}{space 1}   52.42{col 46}{space 3}0.000{col 54}{space 4} 2.403663{col 67}{space 3}  2.59041
+{txt}{space 7}firm3 {c |}{col 14}{res}{space 2} 1.631249{col 26}{space 2} .0628871{col 37}{space 1}   25.94{col 46}{space 3}0.000{col 54}{space 4} 1.507975{col 67}{space 3} 1.754523
+{txt}{space 7}firm4 {c |}{col 14}{res}{space 2} 1.326036{col 26}{space 2}  .051138{col 37}{space 1}   25.93{col 46}{space 3}0.000{col 54}{space 4} 1.225793{col 67}{space 3}  1.42628
+{txt}{space 7}firm5 {c |}{col 14}{res}{space 2} .8798483{col 26}{space 2} .0666116{col 37}{space 1}   13.21{col 46}{space 3}0.000{col 54}{space 4} .7492733{col 67}{space 3} 1.010423
+{txt}{space 7}firm6 {c |}{col 14}{res}{space 2} .1237598{col 26}{space 2} .0445879{col 37}{space 1}    2.78{col 46}{space 3}0.006{col 54}{space 4} .0363566{col 67}{space 3}  .211163
+{txt}{space 7}firm7 {c |}{col 14}{res}{space 2}-.9624196{col 26}{space 2}  .048108{col 37}{space 1}  -20.01{col 46}{space 3}0.000{col 54}{space 4}-1.056723{col 67}{space 3}-.8681163
+{txt}{space 7}firm8 {c |}{col 14}{res}{space 2}-.1247556{col 26}{space 2} .0615887{col 37}{space 1}   -2.03{col 46}{space 3}0.043{col 54}{space 4}-.2454846{col 67}{space 3}-.0040266
+{txt}{space 7}firm9 {c |}{col 14}{res}{space 2}-.5990884{col 26}{space 2} .0495202{col 37}{space 1}  -12.10{col 46}{space 3}0.000{col 54}{space 4}-.6961602{col 67}{space 3}-.5020167
+{txt}{space 7}carbo {c |}{col 14}{res}{space 2}  .068349{col 26}{space 2} .0050877{col 37}{space 1}   13.43{col 46}{space 3}0.000{col 54}{space 4} .0583758{col 67}{space 3} .0783222
+{txt}{space 9}fat {c |}{col 14}{res}{space 2} .0551336{col 26}{space 2} .0093574{col 37}{space 1}    5.89{col 46}{space 3}0.000{col 54}{space 4} .0367908{col 67}{space 3} .0734763
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-.8383385{col 26}{space 2} .0374184{col 37}{space 1}  -22.40{col 46}{space 3}0.000{col 54}{space 4}-.9116876{col 67}{space 3}-.7649893
+{txt}{space 8}flav {c |}{col 14}{res}{space 2} .0373449{col 26}{space 2} .0463385{col 37}{space 1}    0.81{col 46}{space 3}0.420{col 54}{space 4}-.0534899{col 67}{space 3} .1281797
+{txt}{space 7}cream {c |}{col 14}{res}{space 2}-.2352654{col 26}{space 2} .0432529{col 37}{space 1}   -5.44{col 46}{space 3}0.000{col 54}{space 4}-.3200516{col 67}{space 3}-.1504792
+{txt}{space 7}drink {c |}{col 14}{res}{space 2}-.9944339{col 26}{space 2} .0723167{col 37}{space 1}  -13.75{col 46}{space 3}0.000{col 54}{space 4}-1.136192{col 67}{space 3}-.8526755
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 8.933501{col 26}{space 2} .1874771{col 37}{space 1}   47.65{col 46}{space 3}0.000{col 54}{space 4}    8.566{col 67}{space 3} 9.301002
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. estat vif
+
+{txt}    Variable {c |}       VIF       1/VIF  
+{hline 13}{c +}{hline 22}
+{space 5}protein {c |} {res}     7.94    0.125962
+{txt}{space 7}drink {c |} {res}     7.75    0.128989
+{txt}{space 8}flav {c |} {res}     5.82    0.171710
+{txt}{space 7}firm2 {c |} {res}     5.46    0.183042
+{txt}{space 7}firm3 {c |} {res}     4.84    0.206740
+{txt}{space 7}carbo {c |} {res}     4.71    0.212402
+{txt}{space 7}cream {c |} {res}     3.75    0.266356
+{txt}{space 6}lprice {c |} {res}     3.27    0.306155
+{txt}{space 9}fat {c |} {res}     2.75    0.364233
+{txt}{space 7}firm6 {c |} {res}     1.92    0.521078
+{txt}{space 7}firm4 {c |} {res}     1.76    0.568283
+{txt}{space 7}firm5 {c |} {res}     1.52    0.657740
+{txt}{space 7}firm7 {c |} {res}     1.36    0.736330
+{txt}{space 7}firm9 {c |} {res}     1.35    0.740471
+{txt}{space 7}firm8 {c |} {res}     1.26    0.794956
+{txt}{hline 13}{c +}{hline 22}
+    Mean VIF {c |} {res}     3.70
+{txt}
+{com}. 
+. //-----Test for multicollinearity for store variables
+. * We run this regression to identify the behaviour of variables asociated with the store, finding high correlation between most of them. We decide to use the variable (store) that accurately clusters market information. 
+. 
+. reg lsales_volume constot sqmtot incometot sqm_own poptot wtot mtot hhtot age_pop hyper
+{txt}{p 0 6 2}note: {bf:wtot} omitted because of collinearity.{p_end}
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}     8,475
+{txt}{hline 13}{c +}{hline 34}   F(9, 8465)      = {res}   180.83
+{txt}       Model {c |} {res}  1856.7243         9    206.3027   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 9657.66915     8,465  1.14089417   {txt}R-squared       ={res}    0.1613
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.1604
+{txt}       Total {c |} {res} 11514.3934     8,474  1.35879082   {txt}Root MSE        =   {res} 1.0681
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}constot {c |}{col 14}{res}{space 2}-1.91e-09{col 26}{space 2} 1.60e-10{col 37}{space 1}  -11.96{col 46}{space 3}0.000{col 54}{space 4}-2.22e-09{col 67}{space 3}-1.60e-09
+{txt}{space 6}sqmtot {c |}{col 14}{res}{space 2} 6.54e-06{col 26}{space 2} 1.96e-06{col 37}{space 1}    3.34{col 46}{space 3}0.001{col 54}{space 4} 2.70e-06{col 67}{space 3} .0000104
+{txt}{space 3}incometot {c |}{col 14}{res}{space 2} 1.42e-09{col 26}{space 2} 1.64e-10{col 37}{space 1}    8.70{col 46}{space 3}0.000{col 54}{space 4} 1.10e-09{col 67}{space 3} 1.74e-09
+{txt}{space 5}sqm_own {c |}{col 14}{res}{space 2} .0001835{col 26}{space 2} .0000104{col 37}{space 1}   17.65{col 46}{space 3}0.000{col 54}{space 4} .0001631{col 67}{space 3} .0002039
+{txt}{space 6}poptot {c |}{col 14}{res}{space 2}-.0002226{col 26}{space 2} .0000156{col 37}{space 1}  -14.22{col 46}{space 3}0.000{col 54}{space 4}-.0002533{col 67}{space 3}-.0001919
+{txt}{space 8}wtot {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 8}mtot {c |}{col 14}{res}{space 2}  .000411{col 26}{space 2} .0000311{col 37}{space 1}   13.20{col 46}{space 3}0.000{col 54}{space 4}   .00035{col 67}{space 3}  .000472
+{txt}{space 7}hhtot {c |}{col 14}{res}{space 2} .0000709{col 26}{space 2} 6.60e-06{col 37}{space 1}   10.75{col 46}{space 3}0.000{col 54}{space 4}  .000058{col 67}{space 3} .0000838
+{txt}{space 5}age_pop {c |}{col 14}{res}{space 2} .0315504{col 26}{space 2} .0125709{col 37}{space 1}    2.51{col 46}{space 3}0.012{col 54}{space 4} .0069083{col 67}{space 3} .0561924
+{txt}{space 7}hyper {c |}{col 14}{res}{space 2}-.3479976{col 26}{space 2} .0643543{col 37}{space 1}   -5.41{col 46}{space 3}0.000{col 54}{space 4}-.4741478{col 67}{space 3}-.2218474
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 1.483009{col 26}{space 2} .5550109{col 37}{space 1}    2.67{col 46}{space 3}0.008{col 54}{space 4} .3950524{col 67}{space 3} 2.570966
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. corr constot sqmtot incometot sqm_own poptot wtot mtot hhtot age_pop hyper
+{txt}(obs=8,475)
+
+             {c |}  constot   sqmtot income~t  sqm_own   poptot     wtot     mtot    hhtot  age_pop    hyper
+{hline 13}{c +}{hline 90}
+     constot {c |}{res}   1.0000
+      {txt}sqmtot {c |}{res}   0.7685   1.0000
+   {txt}incometot {c |}{res}   0.9976   0.7644   1.0000
+     {txt}sqm_own {c |}{res}  -0.1366   0.0346  -0.1574   1.0000
+      {txt}poptot {c |}{res}   0.9621   0.8507   0.9677  -0.0906   1.0000
+        {txt}wtot {c |}{res}   0.9642   0.8453   0.9704  -0.1011   0.9998   1.0000
+        {txt}mtot {c |}{res}   0.9592   0.8564   0.9641  -0.0784   0.9997   0.9991   1.0000
+       {txt}hhtot {c |}{res}   0.9817   0.7956   0.9881  -0.1247   0.9887   0.9906   0.9860   1.0000
+     {txt}age_pop {c |}{res}   0.0147  -0.2800   0.0338  -0.1702  -0.0005   0.0096  -0.0121   0.0760   1.0000
+       {txt}hyper {c |}{res}  -0.2681   0.0156  -0.2905   0.8792  -0.2288  -0.2395  -0.2163  -0.2631  -0.2634   1.0000
+
+{txt}
+{com}. 
+. 
+. //-----Final regression
+. 
+. reg lsales_volume lprice i.firm carbo fat protein flav cream drink i.store yweek periodo1, robust
+
+{txt}Linear regression                               Number of obs     = {res}     8,475
+                                                {txt}F(36, 8438)       =  {res}   398.15
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.5876
+                                                {txt}Root MSE          =    {res} .75017
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}lprice {c |}{col 14}{res}{space 2}-2.761744{col 26}{space 2} .0464641{col 37}{space 1}  -59.44{col 46}{space 3}0.000{col 54}{space 4}-2.852825{col 67}{space 3}-2.670663
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 2.403648{col 26}{space 2}  .043896{col 37}{space 1}   54.76{col 46}{space 3}0.000{col 54}{space 4} 2.317601{col 67}{space 3} 2.489695
+{txt}{space 10}3  {c |}{col 14}{res}{space 2} 1.546154{col 26}{space 2} .0460729{col 37}{space 1}   33.56{col 46}{space 3}0.000{col 54}{space 4}  1.45584{col 67}{space 3} 1.636468
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} 1.259146{col 26}{space 2} .0461695{col 37}{space 1}   27.27{col 46}{space 3}0.000{col 54}{space 4} 1.168643{col 67}{space 3}  1.34965
+{txt}{space 10}5  {c |}{col 14}{res}{space 2} .8307152{col 26}{space 2} .0521915{col 37}{space 1}   15.92{col 46}{space 3}0.000{col 54}{space 4} .7284072{col 67}{space 3} .9330233
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}  .007178{col 26}{space 2} .0359776{col 37}{space 1}    0.20{col 46}{space 3}0.842{col 54}{space 4}-.0633469{col 67}{space 3} .0777029
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.9626098{col 26}{space 2} .0492722{col 37}{space 1}  -19.54{col 46}{space 3}0.000{col 54}{space 4}-1.059195{col 67}{space 3}-.8660242
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.1542129{col 26}{space 2} .0570626{col 37}{space 1}   -2.70{col 46}{space 3}0.007{col 54}{space 4}-.2660697{col 67}{space 3}-.0423562
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.6770171{col 26}{space 2} .0394587{col 37}{space 1}  -17.16{col 46}{space 3}0.000{col 54}{space 4}-.7543659{col 67}{space 3}-.5996683
+{txt}{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2} .0680957{col 26}{space 2} .0046469{col 37}{space 1}   14.65{col 46}{space 3}0.000{col 54}{space 4} .0589866{col 67}{space 3} .0772049
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}  .066511{col 26}{space 2} .0070832{col 37}{space 1}    9.39{col 46}{space 3}0.000{col 54}{space 4} .0526261{col 67}{space 3} .0803958
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-.7828116{col 26}{space 2} .0252228{col 37}{space 1}  -31.04{col 46}{space 3}0.000{col 54}{space 4}-.8322545{col 67}{space 3}-.7333687
+{txt}{space 8}flav {c |}{col 14}{res}{space 2} .0706307{col 26}{space 2} .0362908{col 37}{space 1}    1.95{col 46}{space 3}0.052{col 54}{space 4}-.0005082{col 67}{space 3} .1417695
+{txt}{space 7}cream {c |}{col 14}{res}{space 2}-.2327368{col 26}{space 2} .0329929{col 37}{space 1}   -7.05{col 46}{space 3}0.000{col 54}{space 4}-.2974109{col 67}{space 3}-.1680627
+{txt}{space 7}drink {c |}{col 14}{res}{space 2}-.9263451{col 26}{space 2} .0536355{col 37}{space 1}  -17.27{col 46}{space 3}0.000{col 54}{space 4}-1.031484{col 67}{space 3}-.8212063
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-1.716557{col 26}{space 2} .0577715{col 37}{space 1}  -29.71{col 46}{space 3}0.000{col 54}{space 4}-1.829804{col 67}{space 3}-1.603311
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-1.227441{col 26}{space 2}  .047652{col 37}{space 1}  -25.76{col 46}{space 3}0.000{col 54}{space 4} -1.32085{col 67}{space 3}-1.134031
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-1.560468{col 26}{space 2} .0537252{col 37}{space 1}  -29.05{col 46}{space 3}0.000{col 54}{space 4}-1.665782{col 67}{space 3}-1.455153
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-.4269861{col 26}{space 2} .0480689{col 37}{space 1}   -8.88{col 46}{space 3}0.000{col 54}{space 4}-.5212128{col 67}{space 3}-.3327593
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-1.177043{col 26}{space 2} .0519738{col 37}{space 1}  -22.65{col 46}{space 3}0.000{col 54}{space 4}-1.278924{col 67}{space 3}-1.075161
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.7224156{col 26}{space 2} .0526569{col 37}{space 1}  -13.72{col 46}{space 3}0.000{col 54}{space 4}-.8256361{col 67}{space 3}-.6191952
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.9124313{col 26}{space 2} .0536454{col 37}{space 1}  -17.01{col 46}{space 3}0.000{col 54}{space 4}-1.017589{col 67}{space 3}-.8072731
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.9529913{col 26}{space 2}  .049257{col 37}{space 1}  -19.35{col 46}{space 3}0.000{col 54}{space 4}-1.049547{col 67}{space 3}-.8564355
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-.4809138{col 26}{space 2}  .046094{col 37}{space 1}  -10.43{col 46}{space 3}0.000{col 54}{space 4}-.5712693{col 67}{space 3}-.3905583
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-.6570822{col 26}{space 2} .0476977{col 37}{space 1}  -13.78{col 46}{space 3}0.000{col 54}{space 4}-.7505813{col 67}{space 3}-.5635831
+{txt}{space 9}12  {c |}{col 14}{res}{space 2}-.4296359{col 26}{space 2} .0494661{col 37}{space 1}   -8.69{col 46}{space 3}0.000{col 54}{space 4}-.5266015{col 67}{space 3}-.3326702
+{txt}{space 9}13  {c |}{col 14}{res}{space 2}-.5328462{col 26}{space 2} .0520137{col 37}{space 1}  -10.24{col 46}{space 3}0.000{col 54}{space 4}-.6348058{col 67}{space 3}-.4308867
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.4463472{col 26}{space 2}  .050841{col 37}{space 1}   -8.78{col 46}{space 3}0.000{col 54}{space 4} -.546008{col 67}{space 3}-.3466864
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-1.068495{col 26}{space 2} .0505406{col 37}{space 1}  -21.14{col 46}{space 3}0.000{col 54}{space 4}-1.167567{col 67}{space 3} -.969423
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.8089759{col 26}{space 2} .0471809{col 37}{space 1}  -17.15{col 46}{space 3}0.000{col 54}{space 4} -.901462{col 67}{space 3}-.7164898
+{txt}{space 9}17  {c |}{col 14}{res}{space 2}-1.289708{col 26}{space 2} .0529923{col 37}{space 1}  -24.34{col 46}{space 3}0.000{col 54}{space 4}-1.393586{col 67}{space 3} -1.18583
+{txt}{space 9}18  {c |}{col 14}{res}{space 2}-1.085268{col 26}{space 2} .0559956{col 37}{space 1}  -19.38{col 46}{space 3}0.000{col 54}{space 4}-1.195033{col 67}{space 3}-.9755024
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-1.160358{col 26}{space 2} .0512898{col 37}{space 1}  -22.62{col 46}{space 3}0.000{col 54}{space 4}-1.260899{col 67}{space 3}-1.059818
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-1.751382{col 26}{space 2} .0514185{col 37}{space 1}  -34.06{col 46}{space 3}0.000{col 54}{space 4}-1.852175{col 67}{space 3}-1.650589
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2} .0386771{col 26}{space 2} .0271131{col 37}{space 1}    1.43{col 46}{space 3}0.154{col 54}{space 4}-.0144711{col 67}{space 3} .0918254
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2} .4620996{col 26}{space 2}  .250735{col 37}{space 1}    1.84{col 46}{space 3}0.065{col 54}{space 4}-.0294025{col 67}{space 3} .9536017
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}  8.96643{col 26}{space 2} .3841421{col 37}{space 1}   23.34{col 46}{space 3}0.000{col 54}{space 4} 8.213417{col 67}{space 3} 9.719442
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}.  
+. 
+. 
+. 
+. *Proof of multicollinearity of energy variable
+. reg sales_volume protein fat carbo energy
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}     8,475
+{txt}{hline 13}{c +}{hline 34}   F(4, 8470)      = {res}   220.75
+{txt}       Model {c |} {res} 14067470.2         4  3516867.55   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res}  134939069     8,470  15931.4131   {txt}R-squared       ={res}    0.0944
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0940
+{txt}       Total {c |} {res}  149006539     8,474  17583.9673   {txt}Root MSE        =   {res} 126.22
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}sales_volume{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}protein {c |}{col 14}{res}{space 2}-80.27526{col 26}{space 2} 4.279816{col 37}{space 1}  -18.76{col 46}{space 3}0.000{col 54}{space 4}-88.66474{col 67}{space 3}-71.88578
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}-130.1625{col 26}{space 2} 6.885416{col 37}{space 1}  -18.90{col 46}{space 3}0.000{col 54}{space 4}-143.6596{col 67}{space 3}-116.6654
+{txt}{space 7}carbo {c |}{col 14}{res}{space 2}-60.64236{col 26}{space 2} 3.158947{col 37}{space 1}  -19.20{col 46}{space 3}0.000{col 54}{space 4}-66.83467{col 67}{space 3}-54.45006
+{txt}{space 6}energy {c |}{col 14}{res}{space 2} 15.91142{col 26}{space 2} .7690404{col 37}{space 1}   20.69{col 46}{space 3}0.000{col 54}{space 4} 14.40391{col 67}{space 3} 17.41893
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 66.69998{col 26}{space 2} 9.638706{col 37}{space 1}    6.92{col 46}{space 3}0.000{col 54}{space 4} 47.80576{col 67}{space 3}  85.5942
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. estat vif
+
+{txt}    Variable {c |}       VIF       1/VIF  
+{hline 13}{c +}{hline 22}
+{space 6}energy {c |} {res}   180.95    0.005526
+{txt}{space 7}carbo {c |} {res}    87.22    0.011465
+{txt}{space 9}fat {c |} {res}    71.44    0.013998
+{txt}{space 5}protein {c |} {res}     4.99    0.200356
+{txt}{hline 13}{c +}{hline 22}
+    Mean VIF {c |} {res}    86.15
+{txt}
+{com}. reg sales_volume protein fat carbo
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}     8,475
+{txt}{hline 13}{c +}{hline 34}   F(3, 8471)      = {res}   144.36
+{txt}       Model {c |} {res} 7247635.46         3  2415878.49   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res}  141758903     8,471  16734.6126   {txt}R-squared       ={res}    0.0486
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0483
+{txt}       Total {c |} {res}  149006539     8,474  17583.9673   {txt}Root MSE        =   {res} 129.36
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}sales_volume{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}protein {c |}{col 14}{res}{space 2}-2.443767{col 26}{space 2}  2.09182{col 37}{space 1}   -1.17{col 46}{space 3}0.243{col 54}{space 4}-6.544244{col 67}{space 3}  1.65671
+{txt}{space 9}fat {c |}{col 14}{res}{space 2} 11.20216{col 26}{space 2} .8730178{col 37}{space 1}   12.83{col 46}{space 3}0.000{col 54}{space 4} 9.490836{col 67}{space 3} 12.91349
+{txt}{space 7}carbo {c |}{col 14}{res}{space 2} 4.284969{col 26}{space 2} .3712746{col 37}{space 1}   11.54{col 46}{space 3}0.000{col 54}{space 4}  3.55718{col 67}{space 3} 5.012757
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 34.64846{col 26}{space 2} 9.750269{col 37}{space 1}    3.55{col 46}{space 3}0.000{col 54}{space 4} 15.53556{col 67}{space 3} 53.76137
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. estat vif
+
+{txt}    Variable {c |}       VIF       1/VIF  
+{hline 13}{c +}{hline 22}
+{space 7}carbo {c |} {res}     1.15    0.871811
+{txt}{space 5}protein {c |} {res}     1.14    0.880980
+{txt}{space 9}fat {c |} {res}     1.09    0.914636
+{txt}{hline 13}{c +}{hline 22}
+    Mean VIF {c |} {res}     1.13
+{txt}
+{com}. 
+. 
+. 
+. 
+. //*=============================================================================
+. //* 3. carbo1 as an instrument for log price
+. //*=============================================================================
+. 
+. reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1,r
+
+{txt}Linear regression                               Number of obs     = {res}     8,204
+                                                {txt}F(35, 8168)       =  {res}   771.17
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.7320
+                                                {txt}Root MSE          =    {res} .18749
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}      lprice{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}carbo1 {c |}{col 14}{res}{space 2} .0419164{col 26}{space 2} .0082341{col 37}{space 1}    5.09{col 46}{space 3}0.000{col 54}{space 4} .0257754{col 67}{space 3} .0580573
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} .8109974{col 26}{space 2} .0238663{col 37}{space 1}   33.98{col 46}{space 3}0.000{col 54}{space 4} .7642133{col 67}{space 3} .8577815
+{txt}{space 10}3  {c |}{col 14}{res}{space 2} .3264041{col 26}{space 2} .0356273{col 37}{space 1}    9.16{col 46}{space 3}0.000{col 54}{space 4} .2565656{col 67}{space 3} .3962426
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} .2874075{col 26}{space 2} .0383368{col 37}{space 1}    7.50{col 46}{space 3}0.000{col 54}{space 4} .2122577{col 67}{space 3} .3625574
+{txt}{space 10}6  {c |}{col 14}{res}{space 2} .0782615{col 26}{space 2} .0223434{col 37}{space 1}    3.50{col 46}{space 3}0.000{col 54}{space 4} .0344627{col 67}{space 3} .1220602
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.1716229{col 26}{space 2} .0472507{col 37}{space 1}   -3.63{col 46}{space 3}0.000{col 54}{space 4}-.2642462{col 67}{space 3}-.0789996
+{txt}{space 10}8  {c |}{col 14}{res}{space 2} .0756986{col 26}{space 2} .0336546{col 37}{space 1}    2.25{col 46}{space 3}0.025{col 54}{space 4} .0097269{col 67}{space 3} .1416702
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.2864199{col 26}{space 2} .0368336{col 37}{space 1}   -7.78{col 46}{space 3}0.000{col 54}{space 4}-.3586232{col 67}{space 3}-.2142166
+{txt}{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2} .0185242{col 26}{space 2} .0014529{col 37}{space 1}   12.75{col 46}{space 3}0.000{col 54}{space 4} .0156762{col 67}{space 3} .0213723
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}-.0604889{col 26}{space 2}  .001754{col 37}{space 1}  -34.49{col 46}{space 3}0.000{col 54}{space 4}-.0639272{col 67}{space 3}-.0570505
+{txt}{space 5}protein {c |}{col 14}{res}{space 2} -.362417{col 26}{space 2} .0069177{col 37}{space 1}  -52.39{col 46}{space 3}0.000{col 54}{space 4}-.3759776{col 67}{space 3}-.3488565
+{txt}{space 8}flav {c |}{col 14}{res}{space 2}-.2484597{col 26}{space 2} .0095149{col 37}{space 1}  -26.11{col 46}{space 3}0.000{col 54}{space 4}-.2671114{col 67}{space 3}-.2298081
+{txt}{space 7}cream {c |}{col 14}{res}{space 2} .0285245{col 26}{space 2} .0080908{col 37}{space 1}    3.53{col 46}{space 3}0.000{col 54}{space 4} .0126646{col 67}{space 3} .0443845
+{txt}{space 7}drink {c |}{col 14}{res}{space 2}-.4794805{col 26}{space 2} .0140275{col 37}{space 1}  -34.18{col 46}{space 3}0.000{col 54}{space 4}-.5069781{col 67}{space 3} -.451983
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-.1225886{col 26}{space 2}  .011772{col 37}{space 1}  -10.41{col 46}{space 3}0.000{col 54}{space 4}-.1456647{col 67}{space 3}-.0995125
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-.0279565{col 26}{space 2} .0123659{col 37}{space 1}   -2.26{col 46}{space 3}0.024{col 54}{space 4}-.0521969{col 67}{space 3}-.0037161
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-.0331322{col 26}{space 2} .0125099{col 37}{space 1}   -2.65{col 46}{space 3}0.008{col 54}{space 4}-.0576548{col 67}{space 3}-.0086096
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-.1560742{col 26}{space 2} .0134333{col 37}{space 1}  -11.62{col 46}{space 3}0.000{col 54}{space 4}-.1824069{col 67}{space 3}-.1297414
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.0764907{col 26}{space 2} .0129075{col 37}{space 1}   -5.93{col 46}{space 3}0.000{col 54}{space 4}-.1017927{col 67}{space 3}-.0511886
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.0590474{col 26}{space 2} .0139374{col 37}{space 1}   -4.24{col 46}{space 3}0.000{col 54}{space 4}-.0863682{col 67}{space 3}-.0317266
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.1096236{col 26}{space 2} .0125028{col 37}{space 1}   -8.77{col 46}{space 3}0.000{col 54}{space 4}-.1341322{col 67}{space 3} -.085115
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.1135343{col 26}{space 2} .0127338{col 37}{space 1}   -8.92{col 46}{space 3}0.000{col 54}{space 4}-.1384958{col 67}{space 3}-.0885728
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-.1029152{col 26}{space 2}  .012011{col 37}{space 1}   -8.57{col 46}{space 3}0.000{col 54}{space 4}-.1264598{col 67}{space 3}-.0793707
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-.0934308{col 26}{space 2} .0128304{col 37}{space 1}   -7.28{col 46}{space 3}0.000{col 54}{space 4}-.1185817{col 67}{space 3}  -.06828
+{txt}{space 9}12  {c |}{col 14}{res}{space 2}-.2393742{col 26}{space 2}  .012526{col 37}{space 1}  -19.11{col 46}{space 3}0.000{col 54}{space 4}-.2639284{col 67}{space 3}  -.21482
+{txt}{space 9}13  {c |}{col 14}{res}{space 2}-.0970874{col 26}{space 2} .0120858{col 37}{space 1}   -8.03{col 46}{space 3}0.000{col 54}{space 4}-.1207785{col 67}{space 3}-.0733962
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.0829843{col 26}{space 2} .0123712{col 37}{space 1}   -6.71{col 46}{space 3}0.000{col 54}{space 4}-.1072351{col 67}{space 3}-.0587335
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-.1239367{col 26}{space 2}  .013808{col 37}{space 1}   -8.98{col 46}{space 3}0.000{col 54}{space 4}-.1510038{col 67}{space 3}-.0968696
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.0183928{col 26}{space 2} .0125498{col 37}{space 1}   -1.47{col 46}{space 3}0.143{col 54}{space 4}-.0429935{col 67}{space 3} .0062079
+{txt}{space 9}17  {c |}{col 14}{res}{space 2} -.040929{col 26}{space 2} .0133106{col 37}{space 1}   -3.07{col 46}{space 3}0.002{col 54}{space 4}-.0670212{col 67}{space 3}-.0148369
+{txt}{space 9}18  {c |}{col 14}{res}{space 2} .0163707{col 26}{space 2} .0128196{col 37}{space 1}    1.28{col 46}{space 3}0.202{col 54}{space 4} -.008759{col 67}{space 3} .0415003
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-.0553325{col 26}{space 2} .0118261{col 37}{space 1}   -4.68{col 46}{space 3}0.000{col 54}{space 4}-.0785147{col 67}{space 3}-.0321503
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-.0111365{col 26}{space 2} .0139596{col 37}{space 1}   -0.80{col 46}{space 3}0.425{col 54}{space 4}-.0385009{col 67}{space 3} .0162278
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2}-.0007679{col 26}{space 2} .0073576{col 37}{space 1}   -0.10{col 46}{space 3}0.917{col 54}{space 4}-.0151907{col 67}{space 3}  .013655
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2} .0321629{col 26}{space 2} .0676868{col 37}{space 1}    0.48{col 46}{space 3}0.635{col 54}{space 4}-.1005205{col 67}{space 3} .1648463
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 2.077499{col 26}{space 2} .1305234{col 37}{space 1}   15.92{col 46}{space 3}0.000{col 54}{space 4}  1.82164{col 67}{space 3} 2.333358
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. test carbo1
+
+{p 0 7}{space 1}{text:( 1)}{space 1} {res}carbo1 = 0{p_end}
+
+{txt}       F(  1,  8168) ={res}   25.91
+{txt}{col 13}Prob > F ={res}    0.0000
+{txt}
+{com}. 
+. esttab using _output/regcarbo1.tex, title("Testing carbo1 relevance as an IV") se keep(carbo1) replace
+{res}{txt}(output written to {browse  `"_output/regcarbo1.tex"'})
+
+{com}. 
+. //*=============================================================================
+. //* 4. Two stage least square approach
+. //*=============================================================================
+. 
+. *Regression using two stage least square manually
+. reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
+
+{txt}Linear regression                               Number of obs     = {res}     8,204
+                                                {txt}F(35, 8168)       =  {res}   771.17
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.7320
+                                                {txt}Root MSE          =    {res} .18749
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}      lprice{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}carbo1 {c |}{col 14}{res}{space 2} .0419164{col 26}{space 2} .0082341{col 37}{space 1}    5.09{col 46}{space 3}0.000{col 54}{space 4} .0257754{col 67}{space 3} .0580573
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} .8109974{col 26}{space 2} .0238663{col 37}{space 1}   33.98{col 46}{space 3}0.000{col 54}{space 4} .7642133{col 67}{space 3} .8577815
+{txt}{space 10}3  {c |}{col 14}{res}{space 2} .3264041{col 26}{space 2} .0356273{col 37}{space 1}    9.16{col 46}{space 3}0.000{col 54}{space 4} .2565656{col 67}{space 3} .3962426
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} .2874075{col 26}{space 2} .0383368{col 37}{space 1}    7.50{col 46}{space 3}0.000{col 54}{space 4} .2122577{col 67}{space 3} .3625574
+{txt}{space 10}6  {c |}{col 14}{res}{space 2} .0782615{col 26}{space 2} .0223434{col 37}{space 1}    3.50{col 46}{space 3}0.000{col 54}{space 4} .0344627{col 67}{space 3} .1220602
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.1716229{col 26}{space 2} .0472507{col 37}{space 1}   -3.63{col 46}{space 3}0.000{col 54}{space 4}-.2642462{col 67}{space 3}-.0789996
+{txt}{space 10}8  {c |}{col 14}{res}{space 2} .0756986{col 26}{space 2} .0336546{col 37}{space 1}    2.25{col 46}{space 3}0.025{col 54}{space 4} .0097269{col 67}{space 3} .1416702
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.2864199{col 26}{space 2} .0368336{col 37}{space 1}   -7.78{col 46}{space 3}0.000{col 54}{space 4}-.3586232{col 67}{space 3}-.2142166
+{txt}{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2} .0185242{col 26}{space 2} .0014529{col 37}{space 1}   12.75{col 46}{space 3}0.000{col 54}{space 4} .0156762{col 67}{space 3} .0213723
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}-.0604889{col 26}{space 2}  .001754{col 37}{space 1}  -34.49{col 46}{space 3}0.000{col 54}{space 4}-.0639272{col 67}{space 3}-.0570505
+{txt}{space 5}protein {c |}{col 14}{res}{space 2} -.362417{col 26}{space 2} .0069177{col 37}{space 1}  -52.39{col 46}{space 3}0.000{col 54}{space 4}-.3759776{col 67}{space 3}-.3488565
+{txt}{space 8}flav {c |}{col 14}{res}{space 2}-.2484597{col 26}{space 2} .0095149{col 37}{space 1}  -26.11{col 46}{space 3}0.000{col 54}{space 4}-.2671114{col 67}{space 3}-.2298081
+{txt}{space 7}cream {c |}{col 14}{res}{space 2} .0285245{col 26}{space 2} .0080908{col 37}{space 1}    3.53{col 46}{space 3}0.000{col 54}{space 4} .0126646{col 67}{space 3} .0443845
+{txt}{space 7}drink {c |}{col 14}{res}{space 2}-.4794805{col 26}{space 2} .0140275{col 37}{space 1}  -34.18{col 46}{space 3}0.000{col 54}{space 4}-.5069781{col 67}{space 3} -.451983
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-.1225886{col 26}{space 2}  .011772{col 37}{space 1}  -10.41{col 46}{space 3}0.000{col 54}{space 4}-.1456647{col 67}{space 3}-.0995125
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-.0279565{col 26}{space 2} .0123659{col 37}{space 1}   -2.26{col 46}{space 3}0.024{col 54}{space 4}-.0521969{col 67}{space 3}-.0037161
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-.0331322{col 26}{space 2} .0125099{col 37}{space 1}   -2.65{col 46}{space 3}0.008{col 54}{space 4}-.0576548{col 67}{space 3}-.0086096
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-.1560742{col 26}{space 2} .0134333{col 37}{space 1}  -11.62{col 46}{space 3}0.000{col 54}{space 4}-.1824069{col 67}{space 3}-.1297414
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.0764907{col 26}{space 2} .0129075{col 37}{space 1}   -5.93{col 46}{space 3}0.000{col 54}{space 4}-.1017927{col 67}{space 3}-.0511886
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.0590474{col 26}{space 2} .0139374{col 37}{space 1}   -4.24{col 46}{space 3}0.000{col 54}{space 4}-.0863682{col 67}{space 3}-.0317266
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.1096236{col 26}{space 2} .0125028{col 37}{space 1}   -8.77{col 46}{space 3}0.000{col 54}{space 4}-.1341322{col 67}{space 3} -.085115
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.1135343{col 26}{space 2} .0127338{col 37}{space 1}   -8.92{col 46}{space 3}0.000{col 54}{space 4}-.1384958{col 67}{space 3}-.0885728
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-.1029152{col 26}{space 2}  .012011{col 37}{space 1}   -8.57{col 46}{space 3}0.000{col 54}{space 4}-.1264598{col 67}{space 3}-.0793707
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-.0934308{col 26}{space 2} .0128304{col 37}{space 1}   -7.28{col 46}{space 3}0.000{col 54}{space 4}-.1185817{col 67}{space 3}  -.06828
+{txt}{space 9}12  {c |}{col 14}{res}{space 2}-.2393742{col 26}{space 2}  .012526{col 37}{space 1}  -19.11{col 46}{space 3}0.000{col 54}{space 4}-.2639284{col 67}{space 3}  -.21482
+{txt}{space 9}13  {c |}{col 14}{res}{space 2}-.0970874{col 26}{space 2} .0120858{col 37}{space 1}   -8.03{col 46}{space 3}0.000{col 54}{space 4}-.1207785{col 67}{space 3}-.0733962
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.0829843{col 26}{space 2} .0123712{col 37}{space 1}   -6.71{col 46}{space 3}0.000{col 54}{space 4}-.1072351{col 67}{space 3}-.0587335
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-.1239367{col 26}{space 2}  .013808{col 37}{space 1}   -8.98{col 46}{space 3}0.000{col 54}{space 4}-.1510038{col 67}{space 3}-.0968696
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.0183928{col 26}{space 2} .0125498{col 37}{space 1}   -1.47{col 46}{space 3}0.143{col 54}{space 4}-.0429935{col 67}{space 3} .0062079
+{txt}{space 9}17  {c |}{col 14}{res}{space 2} -.040929{col 26}{space 2} .0133106{col 37}{space 1}   -3.07{col 46}{space 3}0.002{col 54}{space 4}-.0670212{col 67}{space 3}-.0148369
+{txt}{space 9}18  {c |}{col 14}{res}{space 2} .0163707{col 26}{space 2} .0128196{col 37}{space 1}    1.28{col 46}{space 3}0.202{col 54}{space 4} -.008759{col 67}{space 3} .0415003
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-.0553325{col 26}{space 2} .0118261{col 37}{space 1}   -4.68{col 46}{space 3}0.000{col 54}{space 4}-.0785147{col 67}{space 3}-.0321503
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-.0111365{col 26}{space 2} .0139596{col 37}{space 1}   -0.80{col 46}{space 3}0.425{col 54}{space 4}-.0385009{col 67}{space 3} .0162278
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2}-.0007679{col 26}{space 2} .0073576{col 37}{space 1}   -0.10{col 46}{space 3}0.917{col 54}{space 4}-.0151907{col 67}{space 3}  .013655
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2} .0321629{col 26}{space 2} .0676868{col 37}{space 1}    0.48{col 46}{space 3}0.635{col 54}{space 4}-.1005205{col 67}{space 3} .1648463
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 2.077499{col 26}{space 2} .1305234{col 37}{space 1}   15.92{col 46}{space 3}0.000{col 54}{space 4}  1.82164{col 67}{space 3} 2.333358
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. estimate store reg_first 
+{txt}
+{com}. predict lprice_hat 
+{txt}(option {bf:xb} assumed; fitted values)
+(271 missing values generated)
+
+{com}. 
+. reg lsales_volume lprice_hat i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
+
+{txt}Linear regression                               Number of obs     = {res}     8,204
+                                                {txt}F(35, 8168)       =  {res}   162.36
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.3925
+                                                {txt}Root MSE          =    {res} .90983
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 2}lprice_hat {c |}{col 14}{res}{space 2}-9.273616{col 26}{space 2} .9320425{col 37}{space 1}   -9.95{col 46}{space 3}0.000{col 54}{space 4}-11.10066{col 67}{space 3}-7.446576
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}  6.96056{col 26}{space 2} .6509299{col 37}{space 1}   10.69{col 46}{space 3}0.000{col 54}{space 4} 5.684571{col 67}{space 3} 8.236548
+{txt}{space 10}3  {c |}{col 14}{res}{space 2} 4.820503{col 26}{space 2}  .468671{col 37}{space 1}   10.29{col 46}{space 3}0.000{col 54}{space 4} 3.901789{col 67}{space 3} 5.739217
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} 4.389631{col 26}{space 2} .4479774{col 37}{space 1}    9.80{col 46}{space 3}0.000{col 54}{space 4} 3.511481{col 67}{space 3}  5.26778
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.1564931{col 26}{space 2} .0518711{col 37}{space 1}   -3.02{col 46}{space 3}0.003{col 54}{space 4}-.2581736{col 67}{space 3}-.0548126
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.5327626{col 26}{space 2} .0896871{col 37}{space 1}   -5.94{col 46}{space 3}0.000{col 54}{space 4}-.7085721{col 67}{space 3}-.3569531
+{txt}{space 10}8  {c |}{col 14}{res}{space 2} 1.372329{col 26}{space 2}  .233101{col 37}{space 1}    5.89{col 46}{space 3}0.000{col 54}{space 4} .9153915{col 67}{space 3} 1.829266
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-1.340885{col 26}{space 2}  .111127{col 37}{space 1}  -12.07{col 46}{space 3}0.000{col 54}{space 4}-1.558722{col 67}{space 3}-1.123048
+{txt}{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2} .1567847{col 26}{space 2} .0132103{col 37}{space 1}   11.87{col 46}{space 3}0.000{col 54}{space 4} .1308892{col 67}{space 3} .1826802
+{txt}{space 9}fat {c |}{col 14}{res}{space 2} -.333724{col 26}{space 2} .0580101{col 37}{space 1}   -5.75{col 46}{space 3}0.000{col 54}{space 4}-.4474384{col 67}{space 3}-.2200095
+{txt}{space 5}protein {c |}{col 14}{res}{space 2} -3.11597{col 26}{space 2} .3328431{col 37}{space 1}   -9.36{col 46}{space 3}0.000{col 54}{space 4}-3.768427{col 67}{space 3}-2.463513
+{txt}{space 8}flav {c |}{col 14}{res}{space 2}-1.606483{col 26}{space 2} .2425028{col 37}{space 1}   -6.62{col 46}{space 3}0.000{col 54}{space 4} -2.08185{col 67}{space 3}-1.131116
+{txt}{space 7}cream {c |}{col 14}{res}{space 2}-.0897439{col 26}{space 2} .0457498{col 37}{space 1}   -1.96{col 46}{space 3}0.050{col 54}{space 4}-.1794252{col 67}{space 3}-.0000627
+{txt}{space 7}drink {c |}{col 14}{res}{space 2}-4.057723{col 26}{space 2} .4502012{col 37}{space 1}   -9.01{col 46}{space 3}0.000{col 54}{space 4}-4.940232{col 67}{space 3}-3.175214
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-2.520549{col 26}{space 2} .1324422{col 37}{space 1}  -19.03{col 46}{space 3}0.000{col 54}{space 4} -2.78017{col 67}{space 3}-2.260929
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-1.417652{col 26}{space 2}  .062875{col 37}{space 1}  -22.55{col 46}{space 3}0.000{col 54}{space 4}-1.540903{col 67}{space 3}  -1.2944
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-1.779105{col 26}{space 2}  .070651{col 37}{space 1}  -25.18{col 46}{space 3}0.000{col 54}{space 4}-1.917599{col 67}{space 3}-1.640611
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-1.425348{col 26}{space 2} .1543692{col 37}{space 1}   -9.23{col 46}{space 3}0.000{col 54}{space 4}-1.727951{col 67}{space 3}-1.122745
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-1.692295{col 26}{space 2} .0956344{col 37}{space 1}  -17.70{col 46}{space 3}0.000{col 54}{space 4}-1.879762{col 67}{space 3}-1.504827
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-1.120663{col 26}{space 2} .0844304{col 37}{space 1}  -13.27{col 46}{space 3}0.000{col 54}{space 4}-1.286168{col 67}{space 3}-.9551574
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-1.624641{col 26}{space 2} .1195559{col 37}{space 1}  -13.59{col 46}{space 3}0.000{col 54}{space 4}-1.859002{col 67}{space 3}-1.390281
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-1.689915{col 26}{space 2} .1220724{col 37}{space 1}  -13.84{col 46}{space 3}0.000{col 54}{space 4}-1.929208{col 67}{space 3}-1.450622
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-1.139464{col 26}{space 2} .1086533{col 37}{space 1}  -10.49{col 46}{space 3}0.000{col 54}{space 4}-1.352452{col 67}{space 3}-.9264755
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-1.263807{col 26}{space 2} .1033534{col 37}{space 1}  -12.23{col 46}{space 3}0.000{col 54}{space 4}-1.466406{col 67}{space 3}-1.061208
+{txt}{space 9}12  {c |}{col 14}{res}{space 2}-1.984172{col 26}{space 2} .2315372{col 37}{space 1}   -8.57{col 46}{space 3}0.000{col 54}{space 4}-2.438044{col 67}{space 3}  -1.5303
+{txt}{space 9}13  {c |}{col 14}{res}{space 2} -1.17385{col 26}{space 2} .1120221{col 37}{space 1}  -10.48{col 46}{space 3}0.000{col 54}{space 4}-1.393442{col 67}{space 3}-.9542586
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.9859489{col 26}{space 2}  .097483{col 37}{space 1}  -10.11{col 46}{space 3}0.000{col 54}{space 4} -1.17704{col 67}{space 3}-.7948573
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-1.884558{col 26}{space 2} .1273698{col 37}{space 1}  -14.80{col 46}{space 3}0.000{col 54}{space 4}-2.134235{col 67}{space 3} -1.63488
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.9262436{col 26}{space 2} .0605803{col 37}{space 1}  -15.29{col 46}{space 3}0.000{col 54}{space 4}-1.044996{col 67}{space 3}-.8074909
+{txt}{space 9}17  {c |}{col 14}{res}{space 2}-1.538271{col 26}{space 2} .0707738{col 37}{space 1}  -21.74{col 46}{space 3}0.000{col 54}{space 4}-1.677006{col 67}{space 3}-1.399536
+{txt}{space 9}18  {c |}{col 14}{res}{space 2}-.9764032{col 26}{space 2} .0678995{col 37}{space 1}  -14.38{col 46}{space 3}0.000{col 54}{space 4}-1.109504{col 67}{space 3}-.8433029
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-1.515963{col 26}{space 2} .0807976{col 37}{space 1}  -18.76{col 46}{space 3}0.000{col 54}{space 4}-1.674346{col 67}{space 3}-1.357579
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-1.831419{col 26}{space 2} .0662254{col 37}{space 1}  -27.65{col 46}{space 3}0.000{col 54}{space 4}-1.961238{col 67}{space 3}  -1.7016
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2} .0365277{col 26}{space 2} .0340337{col 37}{space 1}    1.07{col 46}{space 3}0.283{col 54}{space 4}-.0301871{col 67}{space 3} .1032425
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2} .6828509{col 26}{space 2} .3160852{col 37}{space 1}    2.16{col 46}{space 3}0.031{col 54}{space 4} .0632435{col 67}{space 3} 1.302458
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 25.36356{col 26}{space 2} 2.387717{col 37}{space 1}   10.62{col 46}{space 3}0.000{col 54}{space 4} 20.68303{col 67}{space 3} 30.04409
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. estimate store reg_second
+{txt}
+{com}. 
+. esttab using _output/pricehat.tex, title("Manual estimation of log prices coefficient") se keep(lprice_hat) replace
+{res}{txt}(output written to {browse  `"_output/pricehat.tex"'})
+
+{com}. 
+. *Regression using ivreg2 command
+. ivreg2 lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1), endog(lprice)
+{res}
+{txt}IV (2SLS) estimation
+{hline 20}
+
+Estimates efficient for homoskedasticity only
+Statistics consistent for homoskedasticity only
+
+{col 55}Number of obs = {res}    8204
+{txt}{col 55}F( 35,  8168) = {res}   60.17
+{txt}{col 55}Prob > F      = {res}  0.0000
+{txt}Total (centered) SS     = {res} 11129.76652{txt}{col 55}Centered R2   = {res} -0.5224
+{txt}Total (uncentered) SS   = {res} 134402.4702{txt}{col 55}Uncentered R2 = {res}  0.8739
+{txt}Residual SS             = {res}  16944.0879{txt}{col 55}Root MSE      = {res}   1.437
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}lprice {c |}{col 14}{res}{space 2}-9.273611{col 26}{space 2} 1.626859{col 37}{space 1}   -5.70{col 46}{space 3}0.000{col 54}{space 4} -12.4622{col 67}{space 3}-6.085026
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 6.960556{col 26}{space 2} 1.139841{col 37}{space 1}    6.11{col 46}{space 3}0.000{col 54}{space 4} 4.726509{col 67}{space 3} 9.194603
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}   4.8205{col 26}{space 2} .8234954{col 37}{space 1}    5.85{col 46}{space 3}0.000{col 54}{space 4} 3.206479{col 67}{space 3} 6.434522
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} 4.389628{col 26}{space 2} .7856694{col 37}{space 1}    5.59{col 46}{space 3}0.000{col 54}{space 4} 2.849745{col 67}{space 3} 5.929512
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.1564929{col 26}{space 2} .0842755{col 37}{space 1}   -1.86{col 46}{space 3}0.063{col 54}{space 4}-.3216698{col 67}{space 3} .0086839
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.5327629{col 26}{space 2}  .133039{col 37}{space 1}   -4.00{col 46}{space 3}0.000{col 54}{space 4}-.7935145{col 67}{space 3}-.2720113
+{txt}{space 10}8  {c |}{col 14}{res}{space 2} 1.372328{col 26}{space 2}  .393875{col 37}{space 1}    3.48{col 46}{space 3}0.000{col 54}{space 4} .6003469{col 67}{space 3} 2.144309
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-1.340885{col 26}{space 2} .1850711{col 37}{space 1}   -7.25{col 46}{space 3}0.000{col 54}{space 4}-1.703617{col 67}{space 3}-.9781519
+{txt}{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2} .1567846{col 26}{space 2} .0236681{col 37}{space 1}    6.62{col 46}{space 3}0.000{col 54}{space 4}  .110396{col 67}{space 3} .2031732
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}-.3337237{col 26}{space 2} .1010287{col 37}{space 1}   -3.30{col 46}{space 3}0.001{col 54}{space 4}-.5317363{col 67}{space 3} -.135711
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-3.115969{col 26}{space 2} .5855311{col 37}{space 1}   -5.32{col 46}{space 3}0.000{col 54}{space 4}-4.263588{col 67}{space 3}-1.968349
+{txt}{space 8}flav {c |}{col 14}{res}{space 2}-1.606481{col 26}{space 2} .4254172{col 37}{space 1}   -3.78{col 46}{space 3}0.000{col 54}{space 4}-2.440284{col 67}{space 3} -.772679
+{txt}{space 7}cream {c |}{col 14}{res}{space 2} -.089744{col 26}{space 2} .0795611{col 37}{space 1}   -1.13{col 46}{space 3}0.259{col 54}{space 4}-.2456809{col 67}{space 3} .0661929
+{txt}{space 7}drink {c |}{col 14}{res}{space 2} -4.05772{col 26}{space 2} .7905233{col 37}{space 1}   -5.13{col 46}{space 3}0.000{col 54}{space 4}-5.607118{col 67}{space 3}-2.508323
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-2.520549{col 26}{space 2} .2244093{col 37}{space 1}  -11.23{col 46}{space 3}0.000{col 54}{space 4}-2.960383{col 67}{space 3}-2.080714
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-1.417651{col 26}{space 2} .1124515{col 37}{space 1}  -12.61{col 46}{space 3}0.000{col 54}{space 4}-1.638052{col 67}{space 3} -1.19725
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-1.779104{col 26}{space 2} .1165599{col 37}{space 1}  -15.26{col 46}{space 3}0.000{col 54}{space 4}-2.007558{col 67}{space 3}-1.550651
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-1.425347{col 26}{space 2} .2743739{col 37}{space 1}   -5.19{col 46}{space 3}0.000{col 54}{space 4} -1.96311{col 67}{space 3}-.8875842
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-1.692294{col 26}{space 2}  .159252{col 37}{space 1}  -10.63{col 46}{space 3}0.000{col 54}{space 4}-2.004422{col 67}{space 3}-1.380166
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-1.120662{col 26}{space 2}  .137099{col 37}{space 1}   -8.17{col 46}{space 3}0.000{col 54}{space 4}-1.389371{col 67}{space 3}-.8519533
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-1.624641{col 26}{space 2} .2035731{col 37}{space 1}   -7.98{col 46}{space 3}0.000{col 54}{space 4}-2.023637{col 67}{space 3}-1.225645
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-1.689914{col 26}{space 2} .2091252{col 37}{space 1}   -8.08{col 46}{space 3}0.000{col 54}{space 4}-2.099792{col 67}{space 3}-1.280037
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-1.139463{col 26}{space 2} .1935237{col 37}{space 1}   -5.89{col 46}{space 3}0.000{col 54}{space 4}-1.518763{col 67}{space 3}-.7601637
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-1.263807{col 26}{space 2} .1806477{col 37}{space 1}   -7.00{col 46}{space 3}0.000{col 54}{space 4} -1.61787{col 67}{space 3}-.9097436
+{txt}{space 9}12  {c |}{col 14}{res}{space 2}-1.984171{col 26}{space 2} .4013758{col 37}{space 1}   -4.94{col 46}{space 3}0.000{col 54}{space 4}-2.770853{col 67}{space 3}-1.197489
+{txt}{space 9}13  {c |}{col 14}{res}{space 2} -1.17385{col 26}{space 2} .1858229{col 37}{space 1}   -6.32{col 46}{space 3}0.000{col 54}{space 4}-1.538056{col 67}{space 3}-.8096438
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.9859484{col 26}{space 2} .1666791{col 37}{space 1}   -5.92{col 46}{space 3}0.000{col 54}{space 4}-1.312633{col 67}{space 3}-.6592634
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-1.884557{col 26}{space 2} .2236529{col 37}{space 1}   -8.43{col 46}{space 3}0.000{col 54}{space 4}-2.322909{col 67}{space 3}-1.446205
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.9262435{col 26}{space 2} .1021185{col 37}{space 1}   -9.07{col 46}{space 3}0.000{col 54}{space 4}-1.126392{col 67}{space 3}-.7260949
+{txt}{space 9}17  {c |}{col 14}{res}{space 2}-1.538271{col 26}{space 2} .1217217{col 37}{space 1}  -12.64{col 46}{space 3}0.000{col 54}{space 4}-1.776841{col 67}{space 3}-1.299701
+{txt}{space 9}18  {c |}{col 14}{res}{space 2}-.9764033{col 26}{space 2} .1040638{col 37}{space 1}   -9.38{col 46}{space 3}0.000{col 54}{space 4}-1.180365{col 67}{space 3} -.772442
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-1.515962{col 26}{space 2} .1356697{col 37}{space 1}  -11.17{col 46}{space 3}0.000{col 54}{space 4} -1.78187{col 67}{space 3}-1.250055
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-1.831419{col 26}{space 2} .1033102{col 37}{space 1}  -17.73{col 46}{space 3}0.000{col 54}{space 4}-2.033903{col 67}{space 3}-1.628935
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2} .0365277{col 26}{space 2} .0537133{col 37}{space 1}    0.68{col 46}{space 3}0.496{col 54}{space 4}-.0687484{col 67}{space 3} .1418038
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2}  .682851{col 26}{space 2} .4981249{col 37}{space 1}    1.37{col 46}{space 3}0.170{col 54}{space 4} -.293456{col 67}{space 3} 1.659158
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 25.36355{col 26}{space 2} 4.176976{col 37}{space 1}    6.07{col 46}{space 3}0.000{col 54}{space 4} 17.17683{col 67}{space 3} 33.55027
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{help ivreg2##idtest:Underidentification test} (Anderson canon. corr. LM statistic):{res}{col 71}  22.236
+{txt}{col 52}Chi-sq({res}1{txt}) P-val =  {res}{col 73}0.0000
+{txt}{hline 78}
+{help ivreg2##widtest:Weak identification test} (Cragg-Donald Wald F statistic):{res}{col 71}  22.199
+{txt}Stock-Yogo weak ID test critical values:{res}{txt}{col 42}10% maximal IV size{res}{col 73} 16.38
+{txt}{col 42}15% maximal IV size{res}{col 73}  8.96
+{txt}{col 42}20% maximal IV size{res}{col 73}  6.66
+{txt}{col 42}25% maximal IV size{res}{col 73}  5.53
+{txt}Source: Stock-Yogo (2005).  Reproduced by permission.
+{hline 78}
+{help ivreg2##overidtests:Sargan statistic} (overidentification test of all instruments):{res}{col 71}   0.000
+{txt}{col 50}(equation exactly identified)
+-endog- option:
+{help ivreg2##endogtest:Endogeneity test} of endogenous regressors: {res}{col 71}  58.722
+{txt}{col 52}Chi-sq({res}1{txt}) P-val =  {res}{col 73}0.0000
+{txt}Regressors tested:  {col 23}lprice
+{hline 78}
+Instrumented:{col 23}lprice
+Included instruments:{col 23}2.firm 3.firm 4.firm 6.firm 7.firm 8.firm 9.firm carbo
+{col 23}fat protein flav cream drink 2.store 3.store 4.store
+{col 23}5.store 6.store 7.store 8.store 9.store 10.store 11.store
+{col 23}12.store 13.store 14.store 15.store 16.store 17.store
+{col 23}18.store 19.store 20.store yweek periodo1
+Excluded instruments:{col 23}carbo1
+{hline 78}
+
+{com}. 
+. esttab using _output/pricehativreg.tex, title("Estimation of log prices coefficient from ivreg2") se keep(lprice) replace
+{res}{txt}(output written to {browse  `"_output/pricehativreg.tex"'})
+
+{com}. 
+. 
+. //*=============================================================================
+. //* 5. Endogeneity of log price
+. //*=============================================================================
+. 
+. *Manual Hausman test for endogeneity of lprice
+. reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
+
+{txt}Linear regression                               Number of obs     = {res}     8,204
+                                                {txt}F(35, 8168)       =  {res}   771.17
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.7320
+                                                {txt}Root MSE          =    {res} .18749
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}      lprice{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}carbo1 {c |}{col 14}{res}{space 2} .0419164{col 26}{space 2} .0082341{col 37}{space 1}    5.09{col 46}{space 3}0.000{col 54}{space 4} .0257754{col 67}{space 3} .0580573
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} .8109974{col 26}{space 2} .0238663{col 37}{space 1}   33.98{col 46}{space 3}0.000{col 54}{space 4} .7642133{col 67}{space 3} .8577815
+{txt}{space 10}3  {c |}{col 14}{res}{space 2} .3264041{col 26}{space 2} .0356273{col 37}{space 1}    9.16{col 46}{space 3}0.000{col 54}{space 4} .2565656{col 67}{space 3} .3962426
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} .2874075{col 26}{space 2} .0383368{col 37}{space 1}    7.50{col 46}{space 3}0.000{col 54}{space 4} .2122577{col 67}{space 3} .3625574
+{txt}{space 10}6  {c |}{col 14}{res}{space 2} .0782615{col 26}{space 2} .0223434{col 37}{space 1}    3.50{col 46}{space 3}0.000{col 54}{space 4} .0344627{col 67}{space 3} .1220602
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.1716229{col 26}{space 2} .0472507{col 37}{space 1}   -3.63{col 46}{space 3}0.000{col 54}{space 4}-.2642462{col 67}{space 3}-.0789996
+{txt}{space 10}8  {c |}{col 14}{res}{space 2} .0756986{col 26}{space 2} .0336546{col 37}{space 1}    2.25{col 46}{space 3}0.025{col 54}{space 4} .0097269{col 67}{space 3} .1416702
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.2864199{col 26}{space 2} .0368336{col 37}{space 1}   -7.78{col 46}{space 3}0.000{col 54}{space 4}-.3586232{col 67}{space 3}-.2142166
+{txt}{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2} .0185242{col 26}{space 2} .0014529{col 37}{space 1}   12.75{col 46}{space 3}0.000{col 54}{space 4} .0156762{col 67}{space 3} .0213723
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}-.0604889{col 26}{space 2}  .001754{col 37}{space 1}  -34.49{col 46}{space 3}0.000{col 54}{space 4}-.0639272{col 67}{space 3}-.0570505
+{txt}{space 5}protein {c |}{col 14}{res}{space 2} -.362417{col 26}{space 2} .0069177{col 37}{space 1}  -52.39{col 46}{space 3}0.000{col 54}{space 4}-.3759776{col 67}{space 3}-.3488565
+{txt}{space 8}flav {c |}{col 14}{res}{space 2}-.2484597{col 26}{space 2} .0095149{col 37}{space 1}  -26.11{col 46}{space 3}0.000{col 54}{space 4}-.2671114{col 67}{space 3}-.2298081
+{txt}{space 7}cream {c |}{col 14}{res}{space 2} .0285245{col 26}{space 2} .0080908{col 37}{space 1}    3.53{col 46}{space 3}0.000{col 54}{space 4} .0126646{col 67}{space 3} .0443845
+{txt}{space 7}drink {c |}{col 14}{res}{space 2}-.4794805{col 26}{space 2} .0140275{col 37}{space 1}  -34.18{col 46}{space 3}0.000{col 54}{space 4}-.5069781{col 67}{space 3} -.451983
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-.1225886{col 26}{space 2}  .011772{col 37}{space 1}  -10.41{col 46}{space 3}0.000{col 54}{space 4}-.1456647{col 67}{space 3}-.0995125
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-.0279565{col 26}{space 2} .0123659{col 37}{space 1}   -2.26{col 46}{space 3}0.024{col 54}{space 4}-.0521969{col 67}{space 3}-.0037161
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-.0331322{col 26}{space 2} .0125099{col 37}{space 1}   -2.65{col 46}{space 3}0.008{col 54}{space 4}-.0576548{col 67}{space 3}-.0086096
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-.1560742{col 26}{space 2} .0134333{col 37}{space 1}  -11.62{col 46}{space 3}0.000{col 54}{space 4}-.1824069{col 67}{space 3}-.1297414
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.0764907{col 26}{space 2} .0129075{col 37}{space 1}   -5.93{col 46}{space 3}0.000{col 54}{space 4}-.1017927{col 67}{space 3}-.0511886
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.0590474{col 26}{space 2} .0139374{col 37}{space 1}   -4.24{col 46}{space 3}0.000{col 54}{space 4}-.0863682{col 67}{space 3}-.0317266
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.1096236{col 26}{space 2} .0125028{col 37}{space 1}   -8.77{col 46}{space 3}0.000{col 54}{space 4}-.1341322{col 67}{space 3} -.085115
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.1135343{col 26}{space 2} .0127338{col 37}{space 1}   -8.92{col 46}{space 3}0.000{col 54}{space 4}-.1384958{col 67}{space 3}-.0885728
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-.1029152{col 26}{space 2}  .012011{col 37}{space 1}   -8.57{col 46}{space 3}0.000{col 54}{space 4}-.1264598{col 67}{space 3}-.0793707
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-.0934308{col 26}{space 2} .0128304{col 37}{space 1}   -7.28{col 46}{space 3}0.000{col 54}{space 4}-.1185817{col 67}{space 3}  -.06828
+{txt}{space 9}12  {c |}{col 14}{res}{space 2}-.2393742{col 26}{space 2}  .012526{col 37}{space 1}  -19.11{col 46}{space 3}0.000{col 54}{space 4}-.2639284{col 67}{space 3}  -.21482
+{txt}{space 9}13  {c |}{col 14}{res}{space 2}-.0970874{col 26}{space 2} .0120858{col 37}{space 1}   -8.03{col 46}{space 3}0.000{col 54}{space 4}-.1207785{col 67}{space 3}-.0733962
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.0829843{col 26}{space 2} .0123712{col 37}{space 1}   -6.71{col 46}{space 3}0.000{col 54}{space 4}-.1072351{col 67}{space 3}-.0587335
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-.1239367{col 26}{space 2}  .013808{col 37}{space 1}   -8.98{col 46}{space 3}0.000{col 54}{space 4}-.1510038{col 67}{space 3}-.0968696
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.0183928{col 26}{space 2} .0125498{col 37}{space 1}   -1.47{col 46}{space 3}0.143{col 54}{space 4}-.0429935{col 67}{space 3} .0062079
+{txt}{space 9}17  {c |}{col 14}{res}{space 2} -.040929{col 26}{space 2} .0133106{col 37}{space 1}   -3.07{col 46}{space 3}0.002{col 54}{space 4}-.0670212{col 67}{space 3}-.0148369
+{txt}{space 9}18  {c |}{col 14}{res}{space 2} .0163707{col 26}{space 2} .0128196{col 37}{space 1}    1.28{col 46}{space 3}0.202{col 54}{space 4} -.008759{col 67}{space 3} .0415003
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-.0553325{col 26}{space 2} .0118261{col 37}{space 1}   -4.68{col 46}{space 3}0.000{col 54}{space 4}-.0785147{col 67}{space 3}-.0321503
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-.0111365{col 26}{space 2} .0139596{col 37}{space 1}   -0.80{col 46}{space 3}0.425{col 54}{space 4}-.0385009{col 67}{space 3} .0162278
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2}-.0007679{col 26}{space 2} .0073576{col 37}{space 1}   -0.10{col 46}{space 3}0.917{col 54}{space 4}-.0151907{col 67}{space 3}  .013655
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2} .0321629{col 26}{space 2} .0676868{col 37}{space 1}    0.48{col 46}{space 3}0.635{col 54}{space 4}-.1005205{col 67}{space 3} .1648463
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 2.077499{col 26}{space 2} .1305234{col 37}{space 1}   15.92{col 46}{space 3}0.000{col 54}{space 4}  1.82164{col 67}{space 3} 2.333358
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. predict v, resid
+{txt}(271 missing values generated)
+
+{com}. 
+. reg lsales_volume lprice i.firm carbo fat protein flav cream drink i.store yweek periodo1 v, r
+
+{txt}Linear regression                               Number of obs     = {res}     8,204
+                                                {txt}F(36, 8167)       =  {res}   374.14
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.5840
+                                                {txt}Root MSE          =    {res} .75291
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}lprice {c |}{col 14}{res}{space 2}-9.273611{col 26}{space 2} .8360334{col 37}{space 1}  -11.09{col 46}{space 3}0.000{col 54}{space 4}-10.91245{col 67}{space 3}-7.634773
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 6.960556{col 26}{space 2} .5857335{col 37}{space 1}   11.88{col 46}{space 3}0.000{col 54}{space 4} 5.812369{col 67}{space 3} 8.108743
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}   4.8205{col 26}{space 2} .4187054{col 37}{space 1}   11.51{col 46}{space 3}0.000{col 54}{space 4} 3.999731{col 67}{space 3}  5.64127
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} 4.389628{col 26}{space 2} .4024851{col 37}{space 1}   10.91{col 46}{space 3}0.000{col 54}{space 4} 3.600655{col 67}{space 3} 5.178602
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.1564929{col 26}{space 2} .0428976{col 37}{space 1}   -3.65{col 46}{space 3}0.000{col 54}{space 4}-.2405831{col 67}{space 3}-.0724028
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.5327629{col 26}{space 2} .0736954{col 37}{space 1}   -7.23{col 46}{space 3}0.000{col 54}{space 4}-.6772247{col 67}{space 3}-.3883011
+{txt}{space 10}8  {c |}{col 14}{res}{space 2} 1.372328{col 26}{space 2} .2042963{col 37}{space 1}    6.72{col 46}{space 3}0.000{col 54}{space 4}  .971855{col 67}{space 3}   1.7728
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-1.340885{col 26}{space 2} .0949385{col 37}{space 1}  -14.12{col 46}{space 3}0.000{col 54}{space 4}-1.526988{col 67}{space 3}-1.154781
+{txt}{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2} .1567846{col 26}{space 2} .0123353{col 37}{space 1}   12.71{col 46}{space 3}0.000{col 54}{space 4} .1326044{col 67}{space 3} .1809649
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}-.3337236{col 26}{space 2} .0514883{col 37}{space 1}   -6.48{col 46}{space 3}0.000{col 54}{space 4}-.4346539{col 67}{space 3}-.2327934
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-3.115968{col 26}{space 2} .2972093{col 37}{space 1}  -10.48{col 46}{space 3}0.000{col 54}{space 4}-3.698574{col 67}{space 3}-2.533363
+{txt}{space 8}flav {c |}{col 14}{res}{space 2}-1.606481{col 26}{space 2} .2160243{col 37}{space 1}   -7.44{col 46}{space 3}0.000{col 54}{space 4}-2.029944{col 67}{space 3}-1.183019
+{txt}{space 7}cream {c |}{col 14}{res}{space 2} -.089744{col 26}{space 2}  .038477{col 37}{space 1}   -2.33{col 46}{space 3}0.020{col 54}{space 4}-.1651687{col 67}{space 3}-.0143194
+{txt}{space 7}drink {c |}{col 14}{res}{space 2} -4.05772{col 26}{space 2} .4003998{col 37}{space 1}  -10.13{col 46}{space 3}0.000{col 54}{space 4}-4.842606{col 67}{space 3}-3.272835
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-2.520549{col 26}{space 2} .1221701{col 37}{space 1}  -20.63{col 46}{space 3}0.000{col 54}{space 4}-2.760033{col 67}{space 3}-2.281064
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-1.417651{col 26}{space 2} .0546002{col 37}{space 1}  -25.96{col 46}{space 3}0.000{col 54}{space 4}-1.524682{col 67}{space 3}-1.310621
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-1.779104{col 26}{space 2} .0620748{col 37}{space 1}  -28.66{col 46}{space 3}0.000{col 54}{space 4}-1.900787{col 67}{space 3}-1.657422
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-1.425347{col 26}{space 2} .1404867{col 37}{space 1}  -10.15{col 46}{space 3}0.000{col 54}{space 4}-1.700737{col 67}{space 3}-1.149957
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-1.692294{col 26}{space 2} .0833713{col 37}{space 1}  -20.30{col 46}{space 3}0.000{col 54}{space 4}-1.855723{col 67}{space 3}-1.528865
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-1.120662{col 26}{space 2} .0717538{col 37}{space 1}  -15.62{col 46}{space 3}0.000{col 54}{space 4}-1.261318{col 67}{space 3}-.9800065
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-1.624641{col 26}{space 2} .1034332{col 37}{space 1}  -15.71{col 46}{space 3}0.000{col 54}{space 4}-1.827396{col 67}{space 3}-1.421886
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-1.689914{col 26}{space 2} .1073195{col 37}{space 1}  -15.75{col 46}{space 3}0.000{col 54}{space 4}-1.900288{col 67}{space 3}-1.479541
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-1.139463{col 26}{space 2} .0971494{col 37}{space 1}  -11.73{col 46}{space 3}0.000{col 54}{space 4}-1.329901{col 67}{space 3}-.9490256
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-1.263807{col 26}{space 2}  .090326{col 37}{space 1}  -13.99{col 46}{space 3}0.000{col 54}{space 4}-1.440869{col 67}{space 3}-1.086745
+{txt}{space 9}12  {c |}{col 14}{res}{space 2}-1.984171{col 26}{space 2} .2060504{col 37}{space 1}   -9.63{col 46}{space 3}0.000{col 54}{space 4}-2.388082{col 67}{space 3} -1.58026
+{txt}{space 9}13  {c |}{col 14}{res}{space 2} -1.17385{col 26}{space 2} .0982978{col 37}{space 1}  -11.94{col 46}{space 3}0.000{col 54}{space 4}-1.366539{col 67}{space 3}-.9811611
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.9859484{col 26}{space 2} .0865369{col 37}{space 1}  -11.39{col 46}{space 3}0.000{col 54}{space 4}-1.155583{col 67}{space 3}-.8163141
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-1.884557{col 26}{space 2} .1153118{col 37}{space 1}  -16.34{col 46}{space 3}0.000{col 54}{space 4}-2.110598{col 67}{space 3}-1.658516
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.9262435{col 26}{space 2} .0500227{col 37}{space 1}  -18.52{col 46}{space 3}0.000{col 54}{space 4}-1.024301{col 67}{space 3}-.8281863
+{txt}{space 9}17  {c |}{col 14}{res}{space 2}-1.538271{col 26}{space 2} .0641247{col 37}{space 1}  -23.99{col 46}{space 3}0.000{col 54}{space 4}-1.663971{col 67}{space 3} -1.41257
+{txt}{space 9}18  {c |}{col 14}{res}{space 2}-.9764033{col 26}{space 2}   .05946{col 37}{space 1}  -16.42{col 46}{space 3}0.000{col 54}{space 4} -1.09296{col 67}{space 3}-.8598465
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-1.515962{col 26}{space 2} .0688114{col 37}{space 1}  -22.03{col 46}{space 3}0.000{col 54}{space 4} -1.65085{col 67}{space 3}-1.381074
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-1.831419{col 26}{space 2} .0534492{col 37}{space 1}  -34.26{col 46}{space 3}0.000{col 54}{space 4}-1.936193{col 67}{space 3}-1.726645
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2} .0365277{col 26}{space 2} .0276227{col 37}{space 1}    1.32{col 46}{space 3}0.186{col 54}{space 4}-.0176198{col 67}{space 3} .0906752
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2}  .682851{col 26}{space 2}  .256794{col 37}{space 1}    2.66{col 46}{space 3}0.008{col 54}{space 4} .1794695{col 67}{space 3} 1.186233
+{txt}{space 11}v {c |}{col 14}{res}{space 2} 6.548875{col 26}{space 2} .8380469{col 37}{space 1}    7.81{col 46}{space 3}0.000{col 54}{space 4}  4.90609{col 67}{space 3} 8.191661
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 25.36355{col 26}{space 2} 2.130253{col 37}{space 1}   11.91{col 46}{space 3}0.000{col 54}{space 4} 21.18771{col 67}{space 3} 29.53939
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. *Endog command for endogeneity
+. ivreg2 lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1), endog(lprice)
+{res}
+{txt}IV (2SLS) estimation
+{hline 20}
+
+Estimates efficient for homoskedasticity only
+Statistics consistent for homoskedasticity only
+
+{col 55}Number of obs = {res}    8204
+{txt}{col 55}F( 35,  8168) = {res}   60.17
+{txt}{col 55}Prob > F      = {res}  0.0000
+{txt}Total (centered) SS     = {res} 11129.76652{txt}{col 55}Centered R2   = {res} -0.5224
+{txt}Total (uncentered) SS   = {res} 134402.4702{txt}{col 55}Uncentered R2 = {res}  0.8739
+{txt}Residual SS             = {res}  16944.0879{txt}{col 55}Root MSE      = {res}   1.437
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}lprice {c |}{col 14}{res}{space 2}-9.273611{col 26}{space 2} 1.626859{col 37}{space 1}   -5.70{col 46}{space 3}0.000{col 54}{space 4} -12.4622{col 67}{space 3}-6.085026
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 6.960556{col 26}{space 2} 1.139841{col 37}{space 1}    6.11{col 46}{space 3}0.000{col 54}{space 4} 4.726509{col 67}{space 3} 9.194603
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}   4.8205{col 26}{space 2} .8234954{col 37}{space 1}    5.85{col 46}{space 3}0.000{col 54}{space 4} 3.206479{col 67}{space 3} 6.434522
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} 4.389628{col 26}{space 2} .7856694{col 37}{space 1}    5.59{col 46}{space 3}0.000{col 54}{space 4} 2.849745{col 67}{space 3} 5.929512
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.1564929{col 26}{space 2} .0842755{col 37}{space 1}   -1.86{col 46}{space 3}0.063{col 54}{space 4}-.3216698{col 67}{space 3} .0086839
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.5327629{col 26}{space 2}  .133039{col 37}{space 1}   -4.00{col 46}{space 3}0.000{col 54}{space 4}-.7935145{col 67}{space 3}-.2720113
+{txt}{space 10}8  {c |}{col 14}{res}{space 2} 1.372328{col 26}{space 2}  .393875{col 37}{space 1}    3.48{col 46}{space 3}0.000{col 54}{space 4} .6003469{col 67}{space 3} 2.144309
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-1.340885{col 26}{space 2} .1850711{col 37}{space 1}   -7.25{col 46}{space 3}0.000{col 54}{space 4}-1.703617{col 67}{space 3}-.9781519
+{txt}{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2} .1567846{col 26}{space 2} .0236681{col 37}{space 1}    6.62{col 46}{space 3}0.000{col 54}{space 4}  .110396{col 67}{space 3} .2031732
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}-.3337237{col 26}{space 2} .1010287{col 37}{space 1}   -3.30{col 46}{space 3}0.001{col 54}{space 4}-.5317363{col 67}{space 3} -.135711
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-3.115969{col 26}{space 2} .5855311{col 37}{space 1}   -5.32{col 46}{space 3}0.000{col 54}{space 4}-4.263588{col 67}{space 3}-1.968349
+{txt}{space 8}flav {c |}{col 14}{res}{space 2}-1.606481{col 26}{space 2} .4254172{col 37}{space 1}   -3.78{col 46}{space 3}0.000{col 54}{space 4}-2.440284{col 67}{space 3} -.772679
+{txt}{space 7}cream {c |}{col 14}{res}{space 2} -.089744{col 26}{space 2} .0795611{col 37}{space 1}   -1.13{col 46}{space 3}0.259{col 54}{space 4}-.2456809{col 67}{space 3} .0661929
+{txt}{space 7}drink {c |}{col 14}{res}{space 2} -4.05772{col 26}{space 2} .7905233{col 37}{space 1}   -5.13{col 46}{space 3}0.000{col 54}{space 4}-5.607118{col 67}{space 3}-2.508323
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-2.520549{col 26}{space 2} .2244093{col 37}{space 1}  -11.23{col 46}{space 3}0.000{col 54}{space 4}-2.960383{col 67}{space 3}-2.080714
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-1.417651{col 26}{space 2} .1124515{col 37}{space 1}  -12.61{col 46}{space 3}0.000{col 54}{space 4}-1.638052{col 67}{space 3} -1.19725
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-1.779104{col 26}{space 2} .1165599{col 37}{space 1}  -15.26{col 46}{space 3}0.000{col 54}{space 4}-2.007558{col 67}{space 3}-1.550651
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-1.425347{col 26}{space 2} .2743739{col 37}{space 1}   -5.19{col 46}{space 3}0.000{col 54}{space 4} -1.96311{col 67}{space 3}-.8875842
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-1.692294{col 26}{space 2}  .159252{col 37}{space 1}  -10.63{col 46}{space 3}0.000{col 54}{space 4}-2.004422{col 67}{space 3}-1.380166
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-1.120662{col 26}{space 2}  .137099{col 37}{space 1}   -8.17{col 46}{space 3}0.000{col 54}{space 4}-1.389371{col 67}{space 3}-.8519533
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-1.624641{col 26}{space 2} .2035731{col 37}{space 1}   -7.98{col 46}{space 3}0.000{col 54}{space 4}-2.023637{col 67}{space 3}-1.225645
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-1.689914{col 26}{space 2} .2091252{col 37}{space 1}   -8.08{col 46}{space 3}0.000{col 54}{space 4}-2.099792{col 67}{space 3}-1.280037
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-1.139463{col 26}{space 2} .1935237{col 37}{space 1}   -5.89{col 46}{space 3}0.000{col 54}{space 4}-1.518763{col 67}{space 3}-.7601637
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-1.263807{col 26}{space 2} .1806477{col 37}{space 1}   -7.00{col 46}{space 3}0.000{col 54}{space 4} -1.61787{col 67}{space 3}-.9097436
+{txt}{space 9}12  {c |}{col 14}{res}{space 2}-1.984171{col 26}{space 2} .4013758{col 37}{space 1}   -4.94{col 46}{space 3}0.000{col 54}{space 4}-2.770853{col 67}{space 3}-1.197489
+{txt}{space 9}13  {c |}{col 14}{res}{space 2} -1.17385{col 26}{space 2} .1858229{col 37}{space 1}   -6.32{col 46}{space 3}0.000{col 54}{space 4}-1.538056{col 67}{space 3}-.8096438
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.9859484{col 26}{space 2} .1666791{col 37}{space 1}   -5.92{col 46}{space 3}0.000{col 54}{space 4}-1.312633{col 67}{space 3}-.6592634
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-1.884557{col 26}{space 2} .2236529{col 37}{space 1}   -8.43{col 46}{space 3}0.000{col 54}{space 4}-2.322909{col 67}{space 3}-1.446205
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.9262435{col 26}{space 2} .1021185{col 37}{space 1}   -9.07{col 46}{space 3}0.000{col 54}{space 4}-1.126392{col 67}{space 3}-.7260949
+{txt}{space 9}17  {c |}{col 14}{res}{space 2}-1.538271{col 26}{space 2} .1217217{col 37}{space 1}  -12.64{col 46}{space 3}0.000{col 54}{space 4}-1.776841{col 67}{space 3}-1.299701
+{txt}{space 9}18  {c |}{col 14}{res}{space 2}-.9764033{col 26}{space 2} .1040638{col 37}{space 1}   -9.38{col 46}{space 3}0.000{col 54}{space 4}-1.180365{col 67}{space 3} -.772442
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-1.515962{col 26}{space 2} .1356697{col 37}{space 1}  -11.17{col 46}{space 3}0.000{col 54}{space 4} -1.78187{col 67}{space 3}-1.250055
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-1.831419{col 26}{space 2} .1033102{col 37}{space 1}  -17.73{col 46}{space 3}0.000{col 54}{space 4}-2.033903{col 67}{space 3}-1.628935
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2} .0365277{col 26}{space 2} .0537133{col 37}{space 1}    0.68{col 46}{space 3}0.496{col 54}{space 4}-.0687484{col 67}{space 3} .1418038
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2}  .682851{col 26}{space 2} .4981249{col 37}{space 1}    1.37{col 46}{space 3}0.170{col 54}{space 4} -.293456{col 67}{space 3} 1.659158
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 25.36355{col 26}{space 2} 4.176976{col 37}{space 1}    6.07{col 46}{space 3}0.000{col 54}{space 4} 17.17683{col 67}{space 3} 33.55027
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{help ivreg2##idtest:Underidentification test} (Anderson canon. corr. LM statistic):{res}{col 71}  22.236
+{txt}{col 52}Chi-sq({res}1{txt}) P-val =  {res}{col 73}0.0000
+{txt}{hline 78}
+{help ivreg2##widtest:Weak identification test} (Cragg-Donald Wald F statistic):{res}{col 71}  22.199
+{txt}Stock-Yogo weak ID test critical values:{res}{txt}{col 42}10% maximal IV size{res}{col 73} 16.38
+{txt}{col 42}15% maximal IV size{res}{col 73}  8.96
+{txt}{col 42}20% maximal IV size{res}{col 73}  6.66
+{txt}{col 42}25% maximal IV size{res}{col 73}  5.53
+{txt}Source: Stock-Yogo (2005).  Reproduced by permission.
+{hline 78}
+{help ivreg2##overidtests:Sargan statistic} (overidentification test of all instruments):{res}{col 71}   0.000
+{txt}{col 50}(equation exactly identified)
+-endog- option:
+{help ivreg2##endogtest:Endogeneity test} of endogenous regressors: {res}{col 71}  58.722
+{txt}{col 52}Chi-sq({res}1{txt}) P-val =  {res}{col 73}0.0000
+{txt}Regressors tested:  {col 23}lprice
+{hline 78}
+Instrumented:{col 23}lprice
+Included instruments:{col 23}2.firm 3.firm 4.firm 6.firm 7.firm 8.firm 9.firm carbo
+{col 23}fat protein flav cream drink 2.store 3.store 4.store
+{col 23}5.store 6.store 7.store 8.store 9.store 10.store 11.store
+{col 23}12.store 13.store 14.store 15.store 16.store 17.store
+{col 23}18.store 19.store 20.store yweek periodo1
+Excluded instruments:{col 23}carbo1
+{hline 78}
+
+{com}. 
+. 
+. //*#############################################################################
+. //* Part 3
+. //*#############################################################################
+. 
+. //*=============================================================================
+. //* 1. Joint relevance of instruments
+. //*=============================================================================
+. *We drop energy1 and energy2 as it is a linear combination of the variables on their respective groups of IV 1 and 2
+. 
+. *We run a regression for lprice taking into account all the available instruments
+. 
+.  reg lprice protein1 fat1 protein2 carbo2 fat2 carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
+{txt}{p 0 6 2}note: {bf:7.firm} omitted because of collinearity.{p_end}
+{p 0 6 2}note: {bf:8.firm} omitted because of collinearity.{p_end}
+{p 0 6 2}note: {bf:9.firm} omitted because of collinearity.{p_end}
+
+Linear regression                               Number of obs     = {res}     8,204
+                                                {txt}F(37, 8166)       =  {res}   877.54
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.7475
+                                                {txt}Root MSE          =    {res} .18201
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}      lprice{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 4}protein1 {c |}{col 14}{res}{space 2}-1.716272{col 26}{space 2} .0716632{col 37}{space 1}  -23.95{col 46}{space 3}0.000{col 54}{space 4} -1.85675{col 67}{space 3}-1.575793
+{txt}{space 8}fat1 {c |}{col 14}{res}{space 2}-.2527686{col 26}{space 2} .0111458{col 37}{space 1}  -22.68{col 46}{space 3}0.000{col 54}{space 4}-.2746172{col 67}{space 3}-.2309199
+{txt}{space 4}protein2 {c |}{col 14}{res}{space 2}-45.57667{col 26}{space 2} 1.607029{col 37}{space 1}  -28.36{col 46}{space 3}0.000{col 54}{space 4}-48.72685{col 67}{space 3}-42.42648
+{txt}{space 6}carbo2 {c |}{col 14}{res}{space 2} 6.728587{col 26}{space 2} .2804263{col 37}{space 1}   23.99{col 46}{space 3}0.000{col 54}{space 4}  6.17888{col 67}{space 3} 7.278294
+{txt}{space 8}fat2 {c |}{col 14}{res}{space 2}-20.14092{col 26}{space 2} .9046152{col 37}{space 1}  -22.26{col 46}{space 3}0.000{col 54}{space 4}-21.91419{col 67}{space 3}-18.36764
+{txt}{space 6}carbo1 {c |}{col 14}{res}{space 2}-.1084328{col 26}{space 2}  .010278{col 37}{space 1}  -10.55{col 46}{space 3}0.000{col 54}{space 4}-.1285804{col 67}{space 3}-.0882852
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-2.890214{col 26}{space 2} .1560522{col 37}{space 1}  -18.52{col 46}{space 3}0.000{col 54}{space 4}-3.196116{col 67}{space 3}-2.584312
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-6.678234{col 26}{space 2} .3232387{col 37}{space 1}  -20.66{col 46}{space 3}0.000{col 54}{space 4}-7.311864{col 67}{space 3}-6.044604
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} .1454823{col 26}{space 2} .0163935{col 37}{space 1}    8.87{col 46}{space 3}0.000{col 54}{space 4} .1133468{col 67}{space 3} .1776179
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-5.606598{col 26}{space 2} .2091497{col 37}{space 1}  -26.81{col 46}{space 3}0.000{col 54}{space 4}-6.016585{col 67}{space 3}-5.196611
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 10}8  {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 10}9  {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2}-.0002025{col 26}{space 2} .0016934{col 37}{space 1}   -0.12{col 46}{space 3}0.905{col 54}{space 4}-.0035221{col 67}{space 3}  .003117
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}-.0978006{col 26}{space 2} .0026812{col 37}{space 1}  -36.48{col 46}{space 3}0.000{col 54}{space 4}-.1030565{col 67}{space 3}-.0925446
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-.6235371{col 26}{space 2} .0127489{col 37}{space 1}  -48.91{col 46}{space 3}0.000{col 54}{space 4}-.6485281{col 67}{space 3} -.598546
+{txt}{space 8}flav {c |}{col 14}{res}{space 2}-.2259904{col 26}{space 2}  .009178{col 37}{space 1}  -24.62{col 46}{space 3}0.000{col 54}{space 4}-.2439817{col 67}{space 3}-.2079991
+{txt}{space 7}cream {c |}{col 14}{res}{space 2}-.0810371{col 26}{space 2}  .008116{col 37}{space 1}   -9.98{col 46}{space 3}0.000{col 54}{space 4}-.0969466{col 67}{space 3}-.0651277
+{txt}{space 7}drink {c |}{col 14}{res}{space 2} -.544596{col 26}{space 2} .0131311{col 37}{space 1}  -41.47{col 46}{space 3}0.000{col 54}{space 4}-.5703363{col 67}{space 3}-.5188558
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-.1217948{col 26}{space 2} .0111396{col 37}{space 1}  -10.93{col 46}{space 3}0.000{col 54}{space 4}-.1436313{col 67}{space 3}-.0999583
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-.0285191{col 26}{space 2} .0120117{col 37}{space 1}   -2.37{col 46}{space 3}0.018{col 54}{space 4}-.0520651{col 67}{space 3} -.004973
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-.0340083{col 26}{space 2} .0122579{col 37}{space 1}   -2.77{col 46}{space 3}0.006{col 54}{space 4} -.058037{col 67}{space 3}-.0099797
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-.1629017{col 26}{space 2} .0127808{col 37}{space 1}  -12.75{col 46}{space 3}0.000{col 54}{space 4}-.1879554{col 67}{space 3} -.137848
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.0740762{col 26}{space 2} .0123964{col 37}{space 1}   -5.98{col 46}{space 3}0.000{col 54}{space 4}-.0983763{col 67}{space 3}-.0497761
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.0585589{col 26}{space 2} .0133803{col 37}{space 1}   -4.38{col 46}{space 3}0.000{col 54}{space 4}-.0847878{col 67}{space 3}  -.03233
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.1090486{col 26}{space 2} .0117188{col 37}{space 1}   -9.31{col 46}{space 3}0.000{col 54}{space 4}-.1320204{col 67}{space 3}-.0860769
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.1130455{col 26}{space 2} .0122552{col 37}{space 1}   -9.22{col 46}{space 3}0.000{col 54}{space 4}-.1370687{col 67}{space 3}-.0890222
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-.1018833{col 26}{space 2} .0115379{col 37}{space 1}   -8.83{col 46}{space 3}0.000{col 54}{space 4}-.1245006{col 67}{space 3} -.079266
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-.0937926{col 26}{space 2} .0123106{col 37}{space 1}   -7.62{col 46}{space 3}0.000{col 54}{space 4}-.1179245{col 67}{space 3}-.0696606
+{txt}{space 9}12  {c |}{col 14}{res}{space 2}-.2391834{col 26}{space 2} .0119158{col 37}{space 1}  -20.07{col 46}{space 3}0.000{col 54}{space 4}-.2625413{col 67}{space 3}-.2158254
+{txt}{space 9}13  {c |}{col 14}{res}{space 2}-.0970732{col 26}{space 2} .0116004{col 37}{space 1}   -8.37{col 46}{space 3}0.000{col 54}{space 4} -.119813{col 67}{space 3}-.0743335
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.0837174{col 26}{space 2} .0117352{col 37}{space 1}   -7.13{col 46}{space 3}0.000{col 54}{space 4}-.1067214{col 67}{space 3}-.0607134
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-.1232526{col 26}{space 2} .0134525{col 37}{space 1}   -9.16{col 46}{space 3}0.000{col 54}{space 4} -.149623{col 67}{space 3}-.0968822
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.0188963{col 26}{space 2} .0122194{col 37}{space 1}   -1.55{col 46}{space 3}0.122{col 54}{space 4}-.0428495{col 67}{space 3} .0050569
+{txt}{space 9}17  {c |}{col 14}{res}{space 2}-.0418826{col 26}{space 2} .0129092{col 37}{space 1}   -3.24{col 46}{space 3}0.001{col 54}{space 4} -.067188{col 67}{space 3}-.0165773
+{txt}{space 9}18  {c |}{col 14}{res}{space 2} .0141307{col 26}{space 2} .0124057{col 37}{space 1}    1.14{col 46}{space 3}0.255{col 54}{space 4}-.0101876{col 67}{space 3} .0384491
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-.0547991{col 26}{space 2} .0114992{col 37}{space 1}   -4.77{col 46}{space 3}0.000{col 54}{space 4}-.0773405{col 67}{space 3}-.0322577
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-.0119532{col 26}{space 2} .0136488{col 37}{space 1}   -0.88{col 46}{space 3}0.381{col 54}{space 4}-.0387082{col 67}{space 3} .0148019
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2}-.0009188{col 26}{space 2} .0071446{col 37}{space 1}   -0.13{col 46}{space 3}0.898{col 54}{space 4} -.014924{col 67}{space 3} .0130865
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2} .0307048{col 26}{space 2}  .065682{col 37}{space 1}    0.47{col 46}{space 3}0.640{col 54}{space 4}-.0980487{col 67}{space 3} .1594583
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 150.5766{col 26}{space 2}  5.05194{col 37}{space 1}   29.81{col 46}{space 3}0.000{col 54}{space 4} 140.6735{col 67}{space 3} 160.4797
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}.  
+. *The results show collinearity with some of the firms. We drop the second group of IV for which the collinearity arises
+. 
+. reg lprice protein1 fat1 carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
+
+{txt}Linear regression                               Number of obs     = {res}     8,204
+                                                {txt}F(37, 8166)       =  {res}   877.55
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.7475
+                                                {txt}Root MSE          =    {res} .18201
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}      lprice{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 4}protein1 {c |}{col 14}{res}{space 2}-1.716272{col 26}{space 2} .0716632{col 37}{space 1}  -23.95{col 46}{space 3}0.000{col 54}{space 4} -1.85675{col 67}{space 3}-1.575793
+{txt}{space 8}fat1 {c |}{col 14}{res}{space 2}-.2527686{col 26}{space 2} .0111458{col 37}{space 1}  -22.68{col 46}{space 3}0.000{col 54}{space 4}-.2746172{col 67}{space 3}-.2309199
+{txt}{space 6}carbo1 {c |}{col 14}{res}{space 2}-.1084328{col 26}{space 2}  .010278{col 37}{space 1}  -10.55{col 46}{space 3}0.000{col 54}{space 4}-.1285804{col 67}{space 3}-.0882852
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}  .739796{col 26}{space 2} .0231145{col 37}{space 1}   32.01{col 46}{space 3}0.000{col 54}{space 4} .6944856{col 67}{space 3} .7851064
+{txt}{space 10}3  {c |}{col 14}{res}{space 2} 4.298839{col 26}{space 2}  .165389{col 37}{space 1}   25.99{col 46}{space 3}0.000{col 54}{space 4} 3.974635{col 67}{space 3} 4.623044
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} 1.271564{col 26}{space 2}  .054749{col 37}{space 1}   23.23{col 46}{space 3}0.000{col 54}{space 4} 1.164242{col 67}{space 3} 1.378886
+{txt}{space 10}6  {c |}{col 14}{res}{space 2} .8284288{col 26}{space 2} .0388444{col 37}{space 1}   21.33{col 46}{space 3}0.000{col 54}{space 4} .7522838{col 67}{space 3} .9045737
+{txt}{space 10}7  {c |}{col 14}{res}{space 2} 1.031016{col 26}{space 2} .0698808{col 37}{space 1}   14.75{col 46}{space 3}0.000{col 54}{space 4} .8940316{col 67}{space 3}    1.168
+{txt}{space 10}8  {c |}{col 14}{res}{space 2} 1.126081{col 26}{space 2} .0541497{col 37}{space 1}   20.80{col 46}{space 3}0.000{col 54}{space 4} 1.019934{col 67}{space 3} 1.232229
+{txt}{space 10}9  {c |}{col 14}{res}{space 2} .6030277{col 26}{space 2}  .049042{col 37}{space 1}   12.30{col 46}{space 3}0.000{col 54}{space 4} .5068928{col 67}{space 3} .6991626
+{txt}{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2}-.0002025{col 26}{space 2} .0016934{col 37}{space 1}   -0.12{col 46}{space 3}0.905{col 54}{space 4}-.0035221{col 67}{space 3}  .003117
+{txt}{space 9}fat {c |}{col 14}{res}{space 2}-.0978006{col 26}{space 2} .0026812{col 37}{space 1}  -36.48{col 46}{space 3}0.000{col 54}{space 4}-.1030565{col 67}{space 3}-.0925446
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-.6235371{col 26}{space 2} .0127489{col 37}{space 1}  -48.91{col 46}{space 3}0.000{col 54}{space 4}-.6485281{col 67}{space 3} -.598546
+{txt}{space 8}flav {c |}{col 14}{res}{space 2}-.2259904{col 26}{space 2}  .009178{col 37}{space 1}  -24.62{col 46}{space 3}0.000{col 54}{space 4}-.2439817{col 67}{space 3}-.2079991
+{txt}{space 7}cream {c |}{col 14}{res}{space 2}-.0810371{col 26}{space 2}  .008116{col 37}{space 1}   -9.98{col 46}{space 3}0.000{col 54}{space 4}-.0969466{col 67}{space 3}-.0651277
+{txt}{space 7}drink {c |}{col 14}{res}{space 2} -.544596{col 26}{space 2} .0131311{col 37}{space 1}  -41.47{col 46}{space 3}0.000{col 54}{space 4}-.5703363{col 67}{space 3}-.5188558
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-.1217948{col 26}{space 2} .0111396{col 37}{space 1}  -10.93{col 46}{space 3}0.000{col 54}{space 4}-.1436313{col 67}{space 3}-.0999583
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-.0285191{col 26}{space 2} .0120117{col 37}{space 1}   -2.37{col 46}{space 3}0.018{col 54}{space 4}-.0520651{col 67}{space 3} -.004973
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-.0340083{col 26}{space 2} .0122579{col 37}{space 1}   -2.77{col 46}{space 3}0.006{col 54}{space 4} -.058037{col 67}{space 3}-.0099797
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-.1629017{col 26}{space 2} .0127808{col 37}{space 1}  -12.75{col 46}{space 3}0.000{col 54}{space 4}-.1879554{col 67}{space 3} -.137848
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.0740762{col 26}{space 2} .0123964{col 37}{space 1}   -5.98{col 46}{space 3}0.000{col 54}{space 4}-.0983763{col 67}{space 3}-.0497761
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.0585589{col 26}{space 2} .0133803{col 37}{space 1}   -4.38{col 46}{space 3}0.000{col 54}{space 4}-.0847878{col 67}{space 3}  -.03233
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.1090486{col 26}{space 2} .0117188{col 37}{space 1}   -9.31{col 46}{space 3}0.000{col 54}{space 4}-.1320204{col 67}{space 3}-.0860769
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.1130455{col 26}{space 2} .0122552{col 37}{space 1}   -9.22{col 46}{space 3}0.000{col 54}{space 4}-.1370687{col 67}{space 3}-.0890222
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-.1018833{col 26}{space 2} .0115379{col 37}{space 1}   -8.83{col 46}{space 3}0.000{col 54}{space 4}-.1245006{col 67}{space 3} -.079266
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-.0937926{col 26}{space 2} .0123106{col 37}{space 1}   -7.62{col 46}{space 3}0.000{col 54}{space 4}-.1179245{col 67}{space 3}-.0696606
+{txt}{space 9}12  {c |}{col 14}{res}{space 2}-.2391834{col 26}{space 2} .0119158{col 37}{space 1}  -20.07{col 46}{space 3}0.000{col 54}{space 4}-.2625413{col 67}{space 3}-.2158254
+{txt}{space 9}13  {c |}{col 14}{res}{space 2}-.0970732{col 26}{space 2} .0116004{col 37}{space 1}   -8.37{col 46}{space 3}0.000{col 54}{space 4} -.119813{col 67}{space 3}-.0743335
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.0837174{col 26}{space 2} .0117352{col 37}{space 1}   -7.13{col 46}{space 3}0.000{col 54}{space 4}-.1067214{col 67}{space 3}-.0607134
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-.1232526{col 26}{space 2} .0134525{col 37}{space 1}   -9.16{col 46}{space 3}0.000{col 54}{space 4} -.149623{col 67}{space 3}-.0968822
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.0188963{col 26}{space 2} .0122194{col 37}{space 1}   -1.55{col 46}{space 3}0.122{col 54}{space 4}-.0428495{col 67}{space 3} .0050569
+{txt}{space 9}17  {c |}{col 14}{res}{space 2}-.0418826{col 26}{space 2} .0129092{col 37}{space 1}   -3.24{col 46}{space 3}0.001{col 54}{space 4} -.067188{col 67}{space 3}-.0165773
+{txt}{space 9}18  {c |}{col 14}{res}{space 2} .0141307{col 26}{space 2} .0124057{col 37}{space 1}    1.14{col 46}{space 3}0.255{col 54}{space 4}-.0101876{col 67}{space 3} .0384491
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-.0547991{col 26}{space 2} .0114992{col 37}{space 1}   -4.77{col 46}{space 3}0.000{col 54}{space 4}-.0773405{col 67}{space 3}-.0322577
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-.0119532{col 26}{space 2} .0136488{col 37}{space 1}   -0.88{col 46}{space 3}0.381{col 54}{space 4}-.0387082{col 67}{space 3} .0148019
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2}-.0009188{col 26}{space 2} .0071446{col 37}{space 1}   -0.13{col 46}{space 3}0.898{col 54}{space 4} -.014924{col 67}{space 3} .0130865
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2} .0307048{col 26}{space 2}  .065682{col 37}{space 1}    0.47{col 46}{space 3}0.640{col 54}{space 4}-.0980487{col 67}{space 3} .1594583
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 10.83894{col 26}{space 2} .3833201{col 37}{space 1}   28.28{col 46}{space 3}0.000{col 54}{space 4} 10.08754{col 67}{space 3} 11.59035
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. esttab using _output/regIV1.tex, title("Regression of lprice on IV of group 1") se keep(carbo1 fat1 protein1) replace
+{res}{txt}(output written to {browse  `"_output/regIV1.tex"'})
+
+{com}. 
+. 
+. 
+. //*=============================================================================
+. //* 2. Estimation with ivreg2
+. //*=============================================================================
+. 
+. ivreg2 lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1 protein1 fat1), endog(lprice)
+{res}
+{txt}IV (2SLS) estimation
+{hline 20}
+
+Estimates efficient for homoskedasticity only
+Statistics consistent for homoskedasticity only
+
+{col 55}Number of obs = {res}    8204
+{txt}{col 55}F( 35,  8168) = {res}  180.45
+{txt}{col 55}Prob > F      = {res}  0.0000
+{txt}Total (centered) SS     = {res} 11129.76652{txt}{col 55}Centered R2   = {res}  0.4983
+{txt}Total (uncentered) SS   = {res} 134402.4702{txt}{col 55}Uncentered R2 = {res}  0.9585
+{txt}Residual SS             = {res} 5583.253143{txt}{col 55}Root MSE      = {res}    .825
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}lsales_vol~e{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}lprice {c |}{col 14}{res}{space 2}-.9547462{col 26}{space 2}  .197882{col 37}{space 1}   -4.82{col 46}{space 3}0.000{col 54}{space 4}-1.342588{col 67}{space 3}-.5669045
+{txt}{space 12} {c |}
+{space 8}firm {c |}
+{space 10}2  {c |}{col 14}{res}{space 2} 1.138973{col 26}{space 2} .1421096{col 37}{space 1}    8.01{col 46}{space 3}0.000{col 54}{space 4} .8604436{col 67}{space 3} 1.417503
+{txt}{space 10}3  {c |}{col 14}{res}{space 2} .6380195{col 26}{space 2} .1135982{col 37}{space 1}    5.62{col 46}{space 3}0.000{col 54}{space 4} .4153711{col 67}{space 3} .8606678
+{txt}{space 10}4  {c |}{col 14}{res}{space 2} .3904996{col 26}{space 2} .1044199{col 37}{space 1}    3.74{col 46}{space 3}0.000{col 54}{space 4} .1858403{col 67}{space 3} .5951589
+{txt}{space 10}6  {c |}{col 14}{res}{space 2} .0550124{col 26}{space 2} .0424484{col 37}{space 1}    1.30{col 46}{space 3}0.195{col 54}{space 4}-.0281848{col 67}{space 3} .1382097
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-1.080327{col 26}{space 2} .0471524{col 37}{space 1}  -22.91{col 46}{space 3}0.000{col 54}{space 4}-1.172744{col 67}{space 3}-.9879098
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.5764323{col 26}{space 2} .0735522{col 37}{space 1}   -7.84{col 46}{space 3}0.000{col 54}{space 4} -.720592{col 67}{space 3}-.4322726
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.4901881{col 26}{space 2} .0507518{col 37}{space 1}   -9.66{col 46}{space 3}0.000{col 54}{space 4}-.5896599{col 67}{space 3}-.3907163
+{txt}{space 12} {c |}
+{space 7}carbo {c |}{col 14}{res}{space 2} .0434215{col 26}{space 2} .0054685{col 37}{space 1}    7.94{col 46}{space 3}0.000{col 54}{space 4} .0327034{col 67}{space 3} .0541396
+{txt}{space 9}fat {c |}{col 14}{res}{space 2} .1774555{col 26}{space 2} .0147694{col 37}{space 1}   12.02{col 46}{space 3}0.000{col 54}{space 4} .1485079{col 67}{space 3}  .206403
+{txt}{space 5}protein {c |}{col 14}{res}{space 2}-.1349585{col 26}{space 2} .0775418{col 37}{space 1}   -1.74{col 46}{space 3}0.082{col 54}{space 4}-.2869376{col 67}{space 3} .0170206
+{txt}{space 8}flav {c |}{col 14}{res}{space 2} .5362734{col 26}{space 2} .0661188{col 37}{space 1}    8.11{col 46}{space 3}0.000{col 54}{space 4} .4066829{col 67}{space 3} .6658638
+{txt}{space 7}cream {c |}{col 14}{res}{space 2}-.2728223{col 26}{space 2} .0410166{col 37}{space 1}   -6.65{col 46}{space 3}0.000{col 54}{space 4}-.3532134{col 67}{space 3}-.1924311
+{txt}{space 7}drink {c |}{col 14}{res}{space 2}-.0566745{col 26}{space 2} .1150647{col 37}{space 1}   -0.49{col 46}{space 3}0.622{col 54}{space 4}-.2821971{col 67}{space 3}  .168848
+{txt}{space 12} {c |}
+{space 7}store {c |}
+{space 10}2  {c |}{col 14}{res}{space 2}-1.496313{col 26}{space 2} .0629866{col 37}{space 1}  -23.76{col 46}{space 3}0.000{col 54}{space 4}-1.619765{col 67}{space 3}-1.372862
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-1.171845{col 26}{space 2} .0586475{col 37}{space 1}  -19.98{col 46}{space 3}0.000{col 54}{space 4}-1.286792{col 67}{space 3}-1.056898
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-1.490283{col 26}{space 2} .0589302{col 37}{space 1}  -25.29{col 46}{space 3}0.000{col 54}{space 4}-1.605784{col 67}{space 3}-1.374782
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-.1215937{col 26}{space 2} .0659322{col 37}{space 1}   -1.84{col 46}{space 3}0.065{col 54}{space 4}-.2508185{col 67}{space 3}  .007631
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-1.053863{col 26}{space 2} .0587442{col 37}{space 1}  -17.94{col 46}{space 3}0.000{col 54}{space 4}-1.168999{col 67}{space 3} -.938726
+{txt}{space 10}7  {c |}{col 14}{res}{space 2}-.6326447{col 26}{space 2} .0576798{col 37}{space 1}  -10.97{col 46}{space 3}0.000{col 54}{space 4} -.745695{col 67}{space 3}-.5195944
+{txt}{space 10}8  {c |}{col 14}{res}{space 2}-.7142534{col 26}{space 2} .0606621{col 37}{space 1}  -11.77{col 46}{space 3}0.000{col 54}{space 4}-.8331489{col 67}{space 3}-.5953578
+{txt}{space 10}9  {c |}{col 14}{res}{space 2}-.7456073{col 26}{space 2} .0606441{col 37}{space 1}  -12.29{col 46}{space 3}0.000{col 54}{space 4}-.8644675{col 67}{space 3} -.626747
+{txt}{space 9}10  {c |}{col 14}{res}{space 2}-.2853587{col 26}{space 2} .0596682{col 37}{space 1}   -4.78{col 46}{space 3}0.000{col 54}{space 4}-.4023062{col 67}{space 3}-.1684113
+{txt}{space 9}11  {c |}{col 14}{res}{space 2}-.4866002{col 26}{space 2} .0590139{col 37}{space 1}   -8.25{col 46}{space 3}0.000{col 54}{space 4}-.6022652{col 67}{space 3}-.3709351
+{txt}{space 9}12  {c |}{col 14}{res}{space 2} .0063249{col 26}{space 2} .0734618{col 37}{space 1}    0.09{col 46}{space 3}0.931{col 54}{space 4}-.1376576{col 67}{space 3} .1503073
+{txt}{space 9}13  {c |}{col 14}{res}{space 2}-.3669706{col 26}{space 2} .0595131{col 37}{space 1}   -6.17{col 46}{space 3}0.000{col 54}{space 4}-.4836142{col 67}{space 3} -.250327
+{txt}{space 9}14  {c |}{col 14}{res}{space 2}-.2972426{col 26}{space 2} .0586981{col 37}{space 1}   -5.06{col 46}{space 3}0.000{col 54}{space 4}-.4122888{col 67}{space 3}-.1821964
+{txt}{space 9}15  {c |}{col 14}{res}{space 2}-.8566014{col 26}{space 2} .0613493{col 37}{space 1}  -13.96{col 46}{space 3}0.000{col 54}{space 4}-.9768437{col 67}{space 3} -.736359
+{txt}{space 9}16  {c |}{col 14}{res}{space 2}-.7749341{col 26}{space 2} .0562195{col 37}{space 1}  -13.78{col 46}{space 3}0.000{col 54}{space 4}-.8851223{col 67}{space 3}-.6647458
+{txt}{space 9}17  {c |}{col 14}{res}{space 2}-1.190697{col 26}{space 2} .0585492{col 37}{space 1}  -20.34{col 46}{space 3}0.000{col 54}{space 4}-1.305451{col 67}{space 3}-1.075942
+{txt}{space 9}18  {c |}{col 14}{res}{space 2} -1.10619{col 26}{space 2} .0580139{col 37}{space 1}  -19.07{col 46}{space 3}0.000{col 54}{space 4}-1.219895{col 67}{space 3} -.992485
+{txt}{space 9}19  {c |}{col 14}{res}{space 2}-1.050664{col 26}{space 2} .0588148{col 37}{space 1}  -17.86{col 46}{space 3}0.000{col 54}{space 4}-1.165939{col 67}{space 3}-.9353891
+{txt}{space 9}20  {c |}{col 14}{res}{space 2}-1.724339{col 26}{space 2} .0581279{col 37}{space 1}  -29.66{col 46}{space 3}0.000{col 54}{space 4}-1.838267{col 67}{space 3} -1.61041
+{txt}{space 12} {c |}
+{space 7}yweek {c |}{col 14}{res}{space 2} .0439196{col 26}{space 2} .0308224{col 37}{space 1}    1.42{col 46}{space 3}0.154{col 54}{space 4}-.0164912{col 67}{space 3} .1043304
+{txt}{space 4}periodo1 {c |}{col 14}{res}{space 2} .4249717{col 26}{space 2} .2845355{col 37}{space 1}    1.49{col 46}{space 3}0.135{col 54}{space 4}-.1327077{col 67}{space 3} .9826512
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 4.348252{col 26}{space 2} .6582595{col 37}{space 1}    6.61{col 46}{space 3}0.000{col 54}{space 4} 3.058087{col 67}{space 3} 5.638417
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{help ivreg2##idtest:Underidentification test} (Anderson canon. corr. LM statistic):{res}{col 71} 495.241
+{txt}{col 52}Chi-sq({res}3{txt}) P-val =  {res}{col 73}0.0000
+{txt}{hline 78}
+{help ivreg2##widtest:Weak identification test} (Cragg-Donald Wald F statistic):{res}{col 71} 174.872
+{txt}Stock-Yogo weak ID test critical values:{res}{txt}{col 42} 5% maximal IV relative bias{res}{col 73} 13.91
+{txt}{col 42}10% maximal IV relative bias{res}{col 73}  9.08
+{txt}{col 42}20% maximal IV relative bias{res}{col 73}  6.46
+{txt}{col 42}30% maximal IV relative bias{res}{col 73}  5.39
+{txt}{col 42}10% maximal IV size{res}{col 73} 22.30
+{txt}{col 42}15% maximal IV size{res}{col 73} 12.83
+{txt}{col 42}20% maximal IV size{res}{col 73}  9.54
+{txt}{col 42}25% maximal IV size{res}{col 73}  7.80
+{txt}Source: Stock-Yogo (2005).  Reproduced by permission.
+{hline 78}
+{help ivreg2##overidtests:Sargan statistic} (overidentification test of all instruments):{res}{col 71} 211.628
+{txt}{col 52}Chi-sq({res}2{txt}) P-val =  {res}{col 73}0.0000
+{txt}-endog- option:
+{help ivreg2##endogtest:Endogeneity test} of endogenous regressors: {res}{col 71} 104.004
+{txt}{col 52}Chi-sq({res}1{txt}) P-val =  {res}{col 73}0.0000
+{txt}Regressors tested:  {col 23}lprice
+{hline 78}
+Instrumented:{col 23}lprice
+Included instruments:{col 23}2.firm 3.firm 4.firm 6.firm 7.firm 8.firm 9.firm carbo
+{col 23}fat protein flav cream drink 2.store 3.store 4.store
+{col 23}5.store 6.store 7.store 8.store 9.store 10.store 11.store
+{col 23}12.store 13.store 14.store 15.store 16.store 17.store
+{col 23}18.store 19.store 20.store yweek periodo1
+Excluded instruments:{col 23}carbo1 protein1 fat1
+{hline 78}
+
+{com}. 
+. esttab using _output/ivregfull.tex, title("Ivreg2 estimation with all instruments") se keep(lprice) replace
+{res}{txt}(output written to {browse  `"_output/ivregfull.tex"'})
+
+{com}. 
+. 
+. //*#############################################################################
+. //* n. Close log.
+. //*#############################################################################
+. 
+. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps2\_log/log.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}18 Mar 2022, 23:29:22
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
