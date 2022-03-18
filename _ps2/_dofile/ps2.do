@@ -81,6 +81,9 @@ use _data/group9_v2
 tab firm, gen(firm)
 drop firm1
 
+tab store, gen(store)
+drop store1
+
 //-----Test for multicollinearity (energy)
 reg lsales_volume lprice i.firm pri_label energy carbo fat protein flav cream drink
 estat vif
@@ -145,7 +148,7 @@ estat vif
 
 reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1
 
-esttab using _output/regcarbo1.tex, title(Regression of lprice \label{tabcarb1}), keep(carbo1), replace
+esttab using _output/regcarbo1.tex, title(Regression of lprice \label{tabcarb1}) se keep(carbo1) replace
 
 //*=============================================================================
 //* 4. Two stage least square approach
@@ -175,7 +178,8 @@ predict v, resid
 reg lsales_volume lprice i.firm carbo fat protein flav cream drink i.store yweek periodo1 v, r
 
 *Endog command for endogeneity
-estat endog 
+ivreg2 lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1), endog(lprice)
+
 
 //*#############################################################################
 //* Part 3
@@ -184,6 +188,18 @@ estat endog
 //*=============================================================================
 //* 1. Joint relevance of instruments
 //*=============================================================================
+*We drop energy1 and energy2 as it is a linear combination of the variables on their respective groups of IV 1 and 2
+
+*We run a regression for lprice taking into account all the available instruments
+
+ reg lprice protein1 fat1 protein2 carbo2 fat2 carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
+ 
+*The results show collinearity with some of the firms. We drop the second group of IV for which the collinearity arises
+
+reg lprice protein1 fat1 carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1, r
+
+esttab using _output/regIV1.tex, title("Regression of lprice on IV of group 1" \label{tabcarb1}) se keep(carbo1 fat1 protein1) replace
+
 
 
 //*=============================================================================
