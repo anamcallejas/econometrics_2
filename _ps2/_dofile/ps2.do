@@ -11,12 +11,13 @@ clear all
 set more off
 
 cd "C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps2"
+*cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps2"
 *log using _log/log, replace
 
-ssc install ivreg2
-ssc install ranktest
+*ssc install ivreg2
+*ssc install ranktest
 
-ssc install estout, replace
+*ssc install estout, replace
 use _data/group9.dta
 
 
@@ -68,14 +69,24 @@ label variable carbo2 "(iv) avg carb of other products of the same and other fir
 label variable fat2 "(iv) avg fat of other products of the same and other firms"
 label variable protein2 "(iv) avg protein of other products of the same and other firms"
 
-save _data/group9_v2 , replace
+//-----Drop descarted and unused variables
+
+drop pri_label
+drop category
+drop subcat
+drop rank
+drop hhsize
+
+drop energy
+drop hyper
+drop poptot
+drop constot
+drop mtot
+drop wtot
 
 //*=============================================================================
 //* 1. OLS estimation
 //*=============================================================================
-
-clear all
-use _data/group9_v2
 
 //-----generate dummy for firm 
 tab firm, gen(firm)
@@ -83,6 +94,8 @@ drop firm1
 
 tab store, gen(store)
 drop store1
+
+save _data/group9_v2 , replace
 
 //-----Test for multicollinearity (energy)
 reg lsales_volume lprice i.firm pri_label energy carbo fat protein flav cream drink
@@ -115,21 +128,6 @@ corr constot sqmtot incometot sqm_own poptot wtot mtot hhtot age_pop hyper
 
 reg lsales_volume lprice i.firm carbo fat protein flav cream drink i.store yweek periodo1, robust
  
-//-----Drop descarted and unused variables
-
-drop pri_label
-drop category
-drop subcat
-drop rank
-drop hhsize
-drop store
-
-drop energy
-drop hyper
-drop poptot
-drop constot
-drop mtot
-drop wtot
 
 
 
@@ -146,7 +144,8 @@ estat vif
 //* 3. carbo1 as an instrument for log price
 //*=============================================================================
 
-reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1
+reg lprice carbo1 i.firm carbo fat protein flav cream drink i.store yweek periodo1,r
+test carbo1
 
 esttab using _output/regcarbo1.tex, title(Regression of lprice \label{tabcarb1}) se keep(carbo1) replace
 
@@ -208,7 +207,15 @@ esttab using _output/regIV1.tex, title("Regression of lprice on IV of group 1" \
 
 ivreg2 lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1 protein1 fat1), endog(lprice)
 
+//*=============================================================================
+//* 2/B Following the slides
+//*=============================================================================
 
+clear all
+use _data/group9_v2
+
+ivregress 2sls lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1 protein1 fat1), first
+estat firststage /* gives a test of H0:Exogeneity*/
 
 //*#############################################################################
 //* n. Close log.
