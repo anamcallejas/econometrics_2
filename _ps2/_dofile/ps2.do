@@ -206,6 +206,8 @@ esttab using _output/regIV1.tex, title("Regression of lprice on IV of group 1" \
 //* 2. Estimation with ivreg2
 //*=============================================================================
 
+ivreg2 lsales_volume i.firm carbo fat protein flav cream drink i.store yweek periodo1 (lprice = carbo1 protein1 fat1), endog(lprice)
+
 
 
 //*#############################################################################
