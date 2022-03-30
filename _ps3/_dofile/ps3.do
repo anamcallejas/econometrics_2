@@ -10,8 +10,8 @@
 clear all
 set more off
 
-cd "C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps3"
-*cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps3"
+*cd "C:\Users\amcal\Documentos\Clases\3-Econometrics 2\_problem_sets\_ps3"
+cd "C:\Users\Felipe M\Dropbox\1_Personal\_maestria_unibo_(operacional)\8_econometrics_2\_problem_sets\_ps3"
 *log using _log/log, replace
 
 *ssc install ivreg2
@@ -105,6 +105,9 @@ replace correctly_predicted = 1 if life_sat == y_tilde
 
 probit life_sat income age female yedu i.mstat i.hstatus gali wave2 wave3 phinact i.cjs_
 
+*Report of the estimate for income
+esttab using _output/probit1.tex, title("Estimation of income coefficient from probit model") se keep(income) replace
+
 * Wald Test for joint significance. Null hypothesis : The coefficients for all the regressors are zero
 
 test income age female yedu 2.mstat 3.mstat 4.mstat 5.mstat 6.mstat 2.hstatus 3.hstatus 4.hstatus 5.hstatus gali wave2 wave3 phinact 2.cjs_ 3.cjs_ 4.cjs_ 5.cjs_ 6.cjs_
@@ -149,11 +152,8 @@ lrtest unres
 
 probit life_sat income age female yedu i.mstat i.hstatus gali wave2 wave3 phinact i.cjs_ 
 
-margins female
-
 *average partial effect (APE)
 margins, dydx(*)
-marginsplot
 
 *partial effect at the average (PEA)
 margins, dydx(*) atmeans
