@@ -103,36 +103,58 @@ replace correctly_predicted = 1 if life_sat == y_tilde
 
 probit life_sat income age female yedu i.mstat i.hstatus gali wave2 wave3 phinact i.cjs_
 
+* Wald Test for joint significance. Null hypothesis : The coefficients for all the regressors are zero
+
+test income age female yedu 2.mstat 3.mstat 4.mstat 5.mstat 6.mstat 2.hstatus 3.hstatus 4.hstatus 5.hstatus gali wave2 wave3 phinact 2.cjs_ 3.cjs_ 4.cjs_ 5.cjs_ 6.cjs_
+
+*testing for female, wave3 and cjs=2 significance
+quietly: probit life_sat income age female yedu i.mstat i.hstatus gali wave2 wave3 phinact i.cjs_
+
+test female wave3 2.cjs_
+
+*correctly predicted percentage
+quietly: probit life_sat income age female yedu i.mstat i.hstatus gali wave2 wave3 phinact i.cjs_
+
+predict phat, p
+generate ls_hat=(phat>0.5)
+tab  life_sat ls_hat,row
+
+*percentage correcly predicted: (n_00 + n_11)/N
+display (2338+5795)/12292
 
 //*=======================================================================
 //* 2. Wald test and Likelihood ratio test
 //*=======================================================================
 
-* Wald Test for joint significance. Null hypothesis : The coefficients for all the regressors are zero
-
-test income age female yedu 2.mstat 3.mstat 4.mstat 5.mstat 6.mstat 2.hstatus 3.hstatus 4.hstatus 5.hstatus gali wave2 wave3 phinact 2.cjs_ 3.cjs_ 4.cjs_ 5.cjs_ 6.cjs_
-
-
 quietly: probit life_sat income age female yedu i.mstat i.hstatus gali wave2 wave3 phinact i.cjs_
-estimate store m1
 
-*without female, wave 3 and cjs 2
-quietly: probit life_sat income age yedu i.mstat i.hstatus gali wave2 phinact 3.cjs_ 4.cjs_ 5.cjs_ 6.cjs_
-estimate store m2
+*Wald test for significance of trend dummies coefficients
+test wave2 wave3
 
-lrtest m1 m2
+*Likelihood ratio test on trend dummies coefficients
+quietly: probit life_sat income age female yedu i.mstat i.hstatus gali wave2 wave3 phinact i.cjs_
+estimate store unres
+
+quietly: probit life_sat income age female yedu i.mstat i.hstatus gali  phinact i.cjs_ 
+*without wave2 and wave3
+
+lrtest unres
 
 
 //*=======================================================================
 //* 3. Margins
 //*=======================================================================
 
+probit life_sat income age female yedu i.mstat i.hstatus gali wave2 wave3 phinact i.cjs_ 
 
-quietly: probit life_sat income age yedu i.mstat i.hstatus gali wave2 phinact 3.cjs_ 4.cjs_ 5.cjs_ 6.cjs_
+margins female
 
-margins dydx(*) atmeans
+*average partial effect (APE)
+margins, dydx(*)
+marginsplot
 
-margins mstat, atmeans
+*partial effect at the average (PEA)
+margins, dydx(*) atmeans
 
 //*=======================================================================
 //* 4. Partial effect of income
