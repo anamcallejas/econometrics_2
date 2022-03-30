@@ -75,6 +75,8 @@ reg life_sat income age sqd_age female yedu i.mstat i.hstatus gali wave2 wave3 p
 *chosen model
 reg life_sat income age female yedu i.mstat i.hstatus gali wave2 wave3 phinact i.cjs_ , robust
 
+esttab using _output/regression_lpm.tex, title("Regression of the probability of being satisfied with life (Linear Probability Model)") se nogap replace
+
 //* ----- model is not the best:
 //* y_hat has predicted values that go below/above the min/max range for y.
 
